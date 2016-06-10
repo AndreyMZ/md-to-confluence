@@ -3,6 +3,7 @@ import argparse
 import getpass
 import io
 import os
+import sys
 import pathlib
 import subprocess
 import tempfile
@@ -53,32 +54,39 @@ def main():
 
 	# Parse baseUrl, pageId, spaceKey, title from the metadata.
 	if CONFLUENCE_PAGE_URL in confluenceMetadata:
-		url = confluenceMetadata[CONFLUENCE_PAGE_URL]
-		(scheme, netloc, path, query, fragment) = urllib.parse.urlsplit(url)
-		path = pathlib.PurePosixPath(path)
-		query = urllib.parse.parse_qs(query)
+		urlstr = confluenceMetadata[CONFLUENCE_PAGE_URL]
+		url = urllib.parse.urlsplit(urlstr) # type: urllib.parse.SplitResult
+		path = pathlib.PurePosixPath(url.path)
+		query = urllib.parse.parse_qs(url.query)
 		plen = len(path.parts)
+
+		username = url.username
 		if plen >= 4 and path.parts[plen-3] == 'display': # e.g. ['/', 'confluence', 'display', '~jsmith', 'Test+page']
-			baseUrl = scheme + '://' + netloc + str(path.parents[2]).rstrip('/')
+			baseUrl = url.scheme + '://' + url.netloc + str(path.parents[2]).rstrip('/')
 			pageId = None
 			spaceKey = urllib.parse.unquote_plus(path.parts[plen-2])
 			title = urllib.parse.unquote_plus(path.parts[plen-1])
 		elif plen >= 3 and path.parts[plen-2] == 'pages' and path.parts[plen-1] == 'viewpage.action': # e.g. ['/', 'confluence', 'pages', 'viewpage.action']
-			baseUrl = scheme + '://' + netloc + str(path.parents[1]).rstrip('/')
+			baseUrl = url.scheme + '://' + url.netloc + str(path.parents[1]).rstrip('/')
 			pageId = int(query['pageId'][0])
 			spaceKey = None
 			title = None
 		else:
-			raise Exception('Unknown Confluence page URL format: {0}'.format(url))
+			raise Exception('Unknown Confluence page URL format: {0}'.format(urlstr))
+
 	elif CONFLUENCE_BASE_URL in confluenceMetadata:
-		baseUrl = confluenceMetadata[CONFLUENCE_BASE_URL].rstrip('/')
+		urlstr = confluenceMetadata[CONFLUENCE_BASE_URL]
+		url = urllib.parse.urlsplit(urlstr)  # type: urllib.parse.SplitResult
+
+		username = url.username
+		baseUrl = urlstr.rstrip('/')
 		pageId = None
 		spaceKey = None
 		title = None
+
 	else:
 		raise Exception('No `{0}` or `{1}` in `{2}` section of YAML metadata block'.format(CONFLUENCE_PAGE_URL, CONFLUENCE_BASE_URL, CONFLUENCE))
 
-	username = confluenceMetadata.get(CONFLUENCE_USER_NAME) # type: Optional[str]
 	newTitle = metadata.get('title') # type: Optional[str]
 	authors = metadata.get('author', []) # type: List[str]
 
@@ -113,14 +121,16 @@ def main():
 	content += res.stdout.decode('utf-8')
 
 	# Request Confluence API to edit or create a page.
+	print('Username:', username, file=sys.stderr)
 	authenticate(baseUrl, username)
 	try:
 		info = post_page(pageId, spaceKey, title, newTitle, content)
 	except requests.exceptions.HTTPError as ex:
 		response = ex.response # type: requests.models.Response
-		print(response.text)
 		if response.status_code == 401:
-			print('Try to add `{0}` in `{1}` section of YAML metadata block'.format(CONFLUENCE_USER_NAME, CONFLUENCE))
+			print('Authentication failed.')
+		else:
+			print(response.text)
 		return
 
 	# Update metadata.

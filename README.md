@@ -31,22 +31,28 @@ YAML metadata used:
 
     -  `page-url` is required to edit existing page.
     
+        Username and port are optional.
+    
         Examples:
         
-        - `https://confluence.example.com/display/~azelenchuk/My+existing+page`
-        - `https://confluence.example.com/pages/viewpage.action?pageId=12345`
+        - `https://jsmith@example.com:443/confluence/display/~azelenchuk/My+existing+page`
+        - `https://jsmith@example.com:443/confluence/pages/viewpage.action?pageId=12345`
     
     -  `base-url` is required to create new page.
     
+        Username and port are optional.
+    
          Examples:
          
-         - `https://example.com/confluence`
          - `https://confluence.example.com`
-         
-    -  `user-name` - Confluence login. If it is not specified, it is guessed from first `author` (e.g.: John Smith -> jsmith).
-       If `author` is not specified, default is from the environment or password database.
+         - `https://jsmith@example.com:443/confluence`
          
     -  `page-version` is not required. 
+
+If username is not specified as part of the URL, it is guessed from first `author` (e.g.: John Smith -> jsmith).
+If `author` is not specified, default is from the environment or password database.
+
+Password is prompted in console. It is cached in the system keyring service. 
 
 See examples in the `example/` directory.
 
