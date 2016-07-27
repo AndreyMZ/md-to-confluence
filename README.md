@@ -56,6 +56,16 @@ Password is prompted in console. It is cached in the system keyring service.
 
 See examples in the `example/` directory.
 
+### Example of Sublime Text build system config
+
+`Sublime Text 3\Packages\User\Post to Confluence.sublime-build`
+
+```json
+{
+	"selector": "text.html.markdown",
+	"shell_cmd": "start cmd /C \"py C:\\GIT\\confluence-poster\\md_to_confluence.py \"$file\" & pause\""
+}
+```
 
 ## Confluence poster
 
