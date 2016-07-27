@@ -29,6 +29,14 @@ local function escape(s, in_attribute)
 		end)
 end
 
+local function cdataEscape(s)
+	return s:gsub(']]>', ']]]]><![CDATA[>')
+end
+
+local function regexEscape(s)
+	return s:gsub('[\\*+?|{[()^$.]', '\\%1')
+end
+
 -- Helper function to convert an attributes table into
 -- a string that can be put into HTML tags.
 local function attributes(attr)
@@ -77,7 +85,7 @@ local function toc(metadata)
 	if metadata['toc-title'] then
 		local n = (params['minLevel'] or '1')
 		add('<h' .. n .. '>' .. metadata['toc-title'] .. '</h' .. n .. '>')
-		params['exclude'] = metadata['toc-title'] -- TODO: encode plain text in regex
+		params['exclude'] = regexEscape(metadata['toc-title'])
 	end
 	add('<p>')
 	add('  <ac:structured-macro ac:name="toc">')
@@ -196,11 +204,41 @@ function Code(s, attr)
 	return "<code" .. attributes(attr) .. ">" .. escape(s) .. "</code>"
 end
 
+local supported_langs = {
+	'actionscript3',
+	'bash',
+	'csharp',
+	'c#',
+	'coldfusion',
+	'cpp',
+	'css',
+	'delphi',
+	'diff',
+	'erlang',
+	'groovy',
+	'html',
+	'xml',
+	'java',
+	'javafx',
+	'javascript',
+	'none',
+	'perl',
+	'php',
+	'powershell',
+	'python',
+	'ruby',
+	'scala',
+	'sql',
+	'vb',
+}
+
+-- http://pandoc.org/MANUAL.html#fenced-code-blocks
 function CodeBlock(s, attr)
-	-- http://pandoc.org/MANUAL.html#fenced-code-blocks
 	local classes = split(attr['class'])
 	local params = {}
-	params['language'] = classes[1]
+	if classes[1] and contains(supported_langs, string.lower(classes[1])) then
+		params['language'] = classes[1]
+	end
 	params['title'] = attr['title']
 	if contains(classes, 'numberLines') then
 		params['linenumbers'] = 'true'
@@ -210,13 +248,17 @@ function CodeBlock(s, attr)
 		params['collapse'] = 'true'
 	end
 
-	local paramTags = {}
-	for key, val in pairs(params) do
-		if val and val ~= "" then
-			table.insert(paramTags, '<ac:parameter ac:name="' .. escape(key,true) .. '">' .. escape(val) .. '</ac:parameter>\n')
-		end
+	local buffer = {}
+	local function add(s)
+		table.insert(buffer, s)
 	end
-	return '<ac:structured-macro ac:name="code">\n' .. table.concat(paramTags) .. '<ac:plain-text-body><![CDATA[' .. s .. ']]></ac:plain-text-body>\n</ac:structured-macro>'
+	add('<ac:structured-macro ac:name="code">')
+	for key, val in pairs(params) do
+		add('  <ac:parameter ac:name="' .. escape(key,true) .. '">' .. escape(val) .. '</ac:parameter>')
+	end
+	add('  <ac:plain-text-body><![CDATA[' .. cdataEscape(s) .. ']]></ac:plain-text-body>')
+	add('</ac:structured-macro>')
+	return table.concat(buffer, '\n')
 end
 
 function InlineMath(s)
