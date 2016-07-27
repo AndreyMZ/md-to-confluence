@@ -110,15 +110,7 @@ def main():
 	       "--smart",
 	       str(file)]
 	res = subprocess.run(cmd, stdout=subprocess.PIPE)
-	# Include Confluence TOC.
-	content = (
-		'<p>\n'
-		'  <ac:structured-macro ac:name="toc">\n'
-		'    <ac:parameter ac:name="minLevel">2</ac:parameter>\n'
-		'  </ac:structured-macro>\n'
-		'</p>\n'
-	)
-	content += res.stdout.decode('utf-8')
+	content = res.stdout.decode('utf-8')
 
 	# Print username ans ask password.
 	print('Username:', username, file=sys.stderr)

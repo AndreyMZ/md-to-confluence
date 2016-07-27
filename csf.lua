@@ -48,7 +48,7 @@ local function split(str)
 end
 
 local function contains(table, value)
-	for key, val in pairs(table) do
+	for _, val in pairs(table) do
 		if val == value then
 			return true
 		end
@@ -64,6 +64,32 @@ function Blocksep()
 	return "\n\n"
 end
 
+local function toc(metadata)
+	local buffer = {}
+	local function add(s)
+		table.insert(buffer, s)
+	end
+
+	local params = {}
+	params['minLevel'] = metadata['toc-min-level']
+	params['maxLevel'] = metadata['toc-depth']
+
+	if metadata['toc-title'] then
+		local n = (params['minLevel'] or '1')
+		add('<h' .. n .. '>' .. metadata['toc-title'] .. '</h' .. n .. '>')
+		params['exclude'] = metadata['toc-title'] -- TODO: encode plain text in regex
+	end
+	add('<p>')
+	add('  <ac:structured-macro ac:name="toc">')
+	for key,val in pairs(params) do
+		add('    <ac:parameter ac:name="' .. escape(key,true) .. '">' .. escape(val) .. '</ac:parameter>')
+	end
+	add('  </ac:structured-macro>')
+	add('</p>')
+
+	return table.concat(buffer, '\n')
+end
+
 -- This function is called once for the whole document. Parameters:
 -- body is a string, metadata is a table, variables is a table.
 -- This gives you a fragment.  You could use the metadata table to
@@ -75,8 +101,8 @@ function Doc(body, metadata, variables)
 	local function add(s)
 		table.insert(buffer, s)
 	end
-	if metadata["toc"] or variables["toc"] then
-		add(toc())
+	if metadata['toc'] then
+		add(toc(metadata))
 	end
 	add(body)
 	if #notes > 0 then
@@ -87,10 +113,6 @@ function Doc(body, metadata, variables)
 		add('</ol>')
 	end
 	return table.concat(buffer,'\n') .. '\n'
-end
-
-local function toc()
-	return 'TODO: TOC'
 end
 
 -- The functions that follow render corresponding pandoc elements.
@@ -313,8 +335,8 @@ function Table(caption, aligns, widths, headers, rows)
 		add('</colgroup>')
 	end
 	local empty_header = true
-	for i, h in pairs(headers) do
-		if h ~= "" then
+	for _, header in pairs(headers) do
+		if header ~= "" then
 			empty_header = false
 			break
 		end
