@@ -365,17 +365,18 @@ function Table(caption, aligns, widths, headers, rows)
 	local function add(s)
 		table.insert(buffer, s)
 	end
-	add("<table>")
 	if caption and caption ~= "" then
 		add("<p>" .. caption .. "</p>") -- <caption/> is not supported in CSF.
 	end
-	if widths and widths[1] ~= 0 then
-		add('<colgroup>')
-		for _, w in pairs(widths) do
-			add('<col width="' .. string.format("%d%%", w * 100) .. '" />')
-		end
-		add('</colgroup>')
-	end
+	add("<table>")
+	add("<tbody>")
+--	if widths and widths[1] ~= 0 then
+--		add('<colgroup>')
+--		for _, w in pairs(widths) do
+--			add('<col width="' .. string.format("%d%%", w * 100) .. '" />')
+--		end
+--		add('</colgroup>')
+--	end
 	local empty_header = true
 	for _, header in pairs(headers) do
 		if header ~= "" then
@@ -397,6 +398,7 @@ function Table(caption, aligns, widths, headers, rows)
 		end
 		add('</tr>')
 	end
+	add("</tbody>")
 	add('</table>')
 	return table.concat(buffer,'\n')
 end
