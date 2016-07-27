@@ -303,7 +303,7 @@ function Table(caption, aligns, widths, headers, rows)
 	end
 	add("<table>")
 	if caption and caption ~= "" then
-		add("<caption>" .. caption .. "</caption>")
+		add("<p>" .. caption .. "</p>") -- <caption/> is not supported in CSF.
 	end
 	if widths and widths[1] ~= 0 then
 		add('<colgroup>')
