@@ -302,40 +302,38 @@ function Table(caption, aligns, widths, headers, rows)
 		table.insert(buffer, s)
 	end
 	add("<table>")
-	if caption ~= "" then
+	if caption and caption ~= "" then
 		add("<caption>" .. caption .. "</caption>")
 	end
 	if widths and widths[1] ~= 0 then
+		add('<colgroup>')
 		for _, w in pairs(widths) do
 			add('<col width="' .. string.format("%d%%", w * 100) .. '" />')
 		end
+		add('</colgroup>')
 	end
-	local header_row = {}
 	local empty_header = true
 	for i, h in pairs(headers) do
-		local align = html_align(aligns[i])
-		table.insert(header_row,'<th align="' .. align .. '">' .. h .. '</th>')
-		empty_header = empty_header and h == ""
+		if h ~= "" then
+			empty_header = false
+			break
+		end
 	end
-	if empty_header then
-		head = ""
-	else
-		add('<tr class="header">')
-		for _,h in pairs(header_row) do
-			add(h)
+	if not empty_header then
+		add('<tr>')
+		for i,h in pairs(headers) do
+			add('<th style="text-align: ' .. html_align(aligns[i]) .. ';">' .. h .. '</th>')
 		end
 		add('</tr>')
 	end
-	local class = "even"
 	for _, row in pairs(rows) do
-		class = (class == "even" and "odd") or "even"
-		add('<tr class="' .. class .. '">')
+		add('<tr>')
 		for i,c in pairs(row) do
-			add('<td align="' .. html_align(aligns[i]) .. '">' .. c .. '</td>')
+			add('<td style="text-align: ' .. html_align(aligns[i]) .. ';">' .. c .. '</td>')
 		end
 		add('</tr>')
 	end
-	add('</table')
+	add('</table>')
 	return table.concat(buffer,'\n')
 end
 
