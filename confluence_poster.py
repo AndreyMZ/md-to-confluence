@@ -148,13 +148,16 @@ def create_page(spaceKey: str, title: str, content: str) -> dict:
 		}
 	}
 
+	# Print info and ask confirmation.
+	print('To create: {0}/{1}'.format(spaceKey, title))
+	input("Press Enter to continue...")
+
 	url = '{0}/rest/api/content/'.format(BASE_URL)
 	r = requests.post(url, data=json.dumps(data), auth=CREDENTIALS, headers={'Content-Type': 'application/json'})
 	r.raise_for_status()
 
 	info = r.json()
-	print("Created: `{0}` version {1}".format(title, 1))
-	print("URL: {0}{1}".format(BASE_URL, info['_links']['webui']))
+	print("Created: {0} (version {1})".format(info['_links']['webui'], info['version']['number']))
 
 	return info
 
@@ -184,13 +187,16 @@ def edit_page(info: dict, title: Optional[str], content: str) -> None:
 		}
 	}
 
+	# Print info and ask confirmation.
+	print('Page to edit: {0} (version {1})'.format(info['_links']['webui'], info['version']['number']))
+	input("Press Enter to continue...")
+
 	url = '{base}/rest/api/content/{pageid}'.format(base=BASE_URL, pageid=pageid)
 	r = requests.put(url, data=json.dumps(data), auth=CREDENTIALS, headers={'Content-Type': 'application/json'})
 	r.raise_for_status()
 
 	info = r.json()
-	print("Edited: `{0}`, version {1}".format(title, ver))
-	print("URL: {0}{1}".format(BASE_URL, info['_links']['webui']))
+	print("Edited: {0} (version {1})".format(info['_links']['webui'], info['version']['number']))
 
 
 if __name__ == "__main__":

@@ -120,9 +120,11 @@ def main():
 	)
 	content += res.stdout.decode('utf-8')
 
-	# Request Confluence API to edit or create a page.
+	# Print username ans ask password.
 	print('Username:', username, file=sys.stderr)
 	authenticate(baseUrl, username)
+
+	# Request Confluence API to edit or create a page.
 	try:
 		info = post_page(pageId, spaceKey, title, newTitle, content)
 	except requests.exceptions.HTTPError as ex:
