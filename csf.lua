@@ -41,6 +41,21 @@ local function attributes(attr)
 	return table.concat(attr_table)
 end
 
+local function split(str)
+	local words = {}
+	for word in str:gmatch("%w+") do table.insert(words, word) end
+	return words
+end
+
+local function contains(table, value)
+	for key, val in pairs(table) do
+		if val == value then
+			return true
+		end
+	end
+	return false
+end
+
 -- Table to store footnotes, so they can be included at the end.
 local notes = {}
 
@@ -131,13 +146,55 @@ function Link(s, src, tit, attr)
 	end
 end
 
+local function innerImageTag(src, attr)
+	local innerTag
+	if attr['type'] == 'attachment' then
+		return '<ri:attachment ri:filename="' .. escape(src,true) .. '"/>'
+	elseif attr['type'] == 'page' then
+		return '<ri:page ri:content-title="' .. escape(attr['content-title'],true) .. '" ri:space-key="' .. escape(attr['space-key'],true) .. '"/>'
+	else -- if attr['type'] == 'url' then
+		return '<ri:url ri:value="' .. escape(src,true) .. '"/>'
+	end
+end
+
 function Image(s, src, tit, attr)
-	return "<img src='" .. escape(src,true) .. "' title='" ..
-			escape(tit,true) .. "'/>"
+	return '<ac:image ac:alt="' .. s .. '">\
+  ' .. innerImageTag(src, attr) .. '\
+</ac:image>'
+end
+
+function CaptionedImage(src, tit, caption, attr)
+	return '<ac:image ac:align="center" ac:border="true" ac:title="' .. caption .. '">\
+  ' .. innerImageTag(src, attr) .. '\
+</ac:image>\
+<p style="text-align: center;">' .. escape(caption) .. '</p>'
 end
 
 function Code(s, attr)
 	return "<code" .. attributes(attr) .. ">" .. escape(s) .. "</code>"
+end
+
+function CodeBlock(s, attr)
+	-- http://pandoc.org/MANUAL.html#fenced-code-blocks
+	local classes = split(attr['class'])
+	local params = {}
+	params['language'] = classes[1]
+	params['title'] = attr['title']
+	if contains(classes, 'numberLines') then
+		params['linenumbers'] = 'true'
+	end
+	params['firstline'] = attr['startFrom']
+	if contains(classes, 'collapse') then
+		params['collapse'] = 'true'
+	end
+
+	local paramTags = {}
+	for key, val in pairs(params) do
+		if val and val ~= "" then
+			table.insert(paramTags, '<ac:parameter ac:name="' .. escape(key,true) .. '">' .. escape(val) .. '</ac:parameter>\n')
+		end
+	end
+	return '<ac:structured-macro ac:name="code">\n' .. table.concat(paramTags) .. '<ac:plain-text-body><![CDATA[' .. s .. ']]></ac:plain-text-body>\n</ac:structured-macro>'
 end
 
 function InlineMath(s)
@@ -194,10 +251,6 @@ function HorizontalRule()
 	return "<hr/>"
 end
 
-function CodeBlock(s, attr)
-	return "<pre><code" .. attributes(attr) .. ">" .. escape(s) .. "</code></pre>"
-end
-
 function BulletList(items)
 	local buffer = {}
 	for _, item in pairs(items) do
@@ -238,12 +291,6 @@ function html_align(align)
 	else
 		return 'left'
 	end
-end
-
-function CaptionedImage(src, tit, caption, attr)
-	return '<div class="figure">\n<img src="' .. escape(src,true) ..
-			'" title="' .. escape(tit,true) .. '"/>\n' ..
-			'<p class="caption">' .. caption .. '</p>\n</div>'
 end
 
 -- Caption is a string, aligns is an array of strings,
