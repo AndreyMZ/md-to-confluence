@@ -9,7 +9,23 @@
 -- produce informative error messages if your code contains
 -- syntax errors.
 
--- Character escaping
+
+--- For debugging ---
+
+local function printargs(func, restargs, ...)
+	local buf = {}
+	for _,v in ipairs(arg) do
+		table.insert(buf, "'" .. tostring(v) .. "'")
+	end
+	for _,v in ipairs(restargs) do
+		table.insert(buf, "'" .. tostring(v) .. "'")
+	end
+	print(func .. '(' .. table.concat(buf, ', ') .. ')')
+end
+
+
+--- Character escaping ---
+
 local function escape(s, in_attribute)
 	return s:gsub("[<>&\"']",
 		function(x)
@@ -36,6 +52,9 @@ end
 local function regexEscape(s)
 	return s:gsub('[\\*+?|{[()^$.]', '\\%1')
 end
+
+
+--- Helper functions ---
 
 -- Helper function to convert an attributes table into
 -- a string that can be put into HTML tags.
@@ -64,13 +83,19 @@ local function contains(table, value)
 	return false
 end
 
+function string.starts(str, start)
+   return string.sub(str, 1, string.len(start)) == start
+end
+
+function string.ends(str, theEnd)
+   return (theEnd == '') or (string.sub(str, -string.len(theEnd)) == theEnd)
+end
+
+
+--- Render functions ---
+
 -- Table to store footnotes, so they can be included at the end.
 local notes = {}
-
--- Blocksep is used to separate block elements.
-function Blocksep()
-	return "\n\n"
-end
 
 local function toc(metadata)
 	local buffer = {}
@@ -142,6 +167,11 @@ end
 
 function LineBreak()
 	return "<br/>"
+end
+
+-- Blocksep is used to separate block elements.
+function Blocksep()
+	return "\n\n"
 end
 
 function Emph(s)
@@ -281,10 +311,6 @@ function Note(s)
 			'"><sup>' .. num .. '</sup></a>'
 end
 
-function Span(s, attr)
-	return "<span" .. attributes(attr) .. ">" .. s .. "</span>"
-end
-
 function Cite(s, cs)
 	local ids = {}
 	for _,cit in ipairs(cs) do
@@ -296,6 +322,30 @@ end
 
 function Plain(s)
 	return s
+end
+
+-- Raw HTML: http://pandoc.org/MANUAL.html#extension-raw_html
+function RawInline(lang, tagStr)
+	return tagStr
+end
+
+function RawBlock(lang, tagStr)
+	-- Strip HTML comment.
+	if tagStr:starts('<!--') and tagStr:ends('-->') then
+		return ''
+	else
+		return tagStr
+	end
+end
+
+-- Native Div blocks: http://pandoc.org/MANUAL.html#extension-native_divs
+function Div(s, attr)
+	return "<div" .. attributes(attr) .. ">" .. s .. "</div>"
+end
+
+-- Native Span blocks: http://pandoc.org/MANUAL.html#extension-native_spans
+function Span(s, attr)
+	return "<span" .. attributes(attr) .. ">" .. s .. "</span>"
 end
 
 function Para(s)
@@ -401,10 +451,6 @@ function Table(caption, aligns, widths, headers, rows)
 	add("</tbody>")
 	add('</table>')
 	return table.concat(buffer,'\n')
-end
-
-function Div(s, attr)
-	return "<div" .. attributes(attr) .. ">\n" .. s .. "</div>"
 end
 
 function DoubleQuoted(s)
