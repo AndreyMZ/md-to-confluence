@@ -68,12 +68,6 @@ local function attributes(attr)
 	return table.concat(attr_table)
 end
 
-local function split(str)
-	local words = {}
-	for word in str:gmatch("%w+") do table.insert(words, word) end
-	return words
-end
-
 local function contains(table, value)
 	for _, val in pairs(table) do
 		if val == value then
@@ -81,6 +75,12 @@ local function contains(table, value)
 		end
 	end
 	return false
+end
+
+function string.split(str)
+	local words = {}
+	for word in str:gmatch("%w+") do table.insert(words, word) end
+	return words
 end
 
 function string.starts(str, start)
@@ -264,7 +264,7 @@ local supported_langs = {
 
 -- http://pandoc.org/MANUAL.html#fenced-code-blocks
 function CodeBlock(s, attr)
-	local classes = split(attr['class'])
+	local classes = string.split(attr['class'])
 	local params = {}
 	if classes[1] and contains(supported_langs, string.lower(classes[1])) then
 		params['language'] = classes[1]
@@ -407,6 +407,8 @@ function html_align(align)
 	end
 end
 
+local supported_cell_colors = {'red', 'green', 'yellow', 'grey', 'blue'}
+
 -- Caption is a string, aligns is an array of strings,
 -- widths is an array of floats, headers is an array of
 -- strings, rows is an array of arrays of strings.
@@ -415,6 +417,26 @@ function Table(caption, aligns, widths, headers, rows)
 	local function add(s)
 		table.insert(buffer, s)
 	end
+
+	local function addCell(tag, i, c)
+		local attrs = {}
+
+		local align = html_align(aligns[i])
+		if align ~= 'left' then
+			attrs['style'] = 'text-align: ' .. align .. ';'
+		end
+
+		local color, text = c:match('^<span class="(%w*)">(.*)</span>$')
+		if color and text and contains(supported_cell_colors, color) then
+			attrs['class'] = 'highlight-' .. color
+			attrs['data-highlight-colour'] = color
+		else
+			text = c
+		end
+
+		add('<' .. tag .. attributes(attrs) .. '>' .. text .. '</' .. tag .. '>')
+	end
+
 	if caption and caption ~= "" then
 		add("<p>" .. caption .. "</p>") -- <caption/> is not supported in CSF.
 	end
@@ -436,15 +458,15 @@ function Table(caption, aligns, widths, headers, rows)
 	end
 	if not empty_header then
 		add('<tr>')
-		for i,h in pairs(headers) do
-			add('<th style="text-align: ' .. html_align(aligns[i]) .. ';">' .. h .. '</th>')
+		for i,c in pairs(headers) do
+			addCell('th', i, c)
 		end
 		add('</tr>')
 	end
 	for _, row in pairs(rows) do
 		add('<tr>')
 		for i,c in pairs(row) do
-			add('<td style="text-align: ' .. html_align(aligns[i]) .. ';">' .. c .. '</td>')
+			addCell('td', i, c)
 		end
 		add('</tr>')
 	end
