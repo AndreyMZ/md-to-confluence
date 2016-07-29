@@ -94,16 +94,14 @@ def post_page(pageid: Optional[int], spaceKey: Optional[str], title: Optional[st
 
 		if pageid is not None:
 			info = get_page_info(pageid)
-			edit_page(info, newTitle, content)
-			return info
+			return edit_page(info, newTitle, content)
 		elif spaceKey is not None and title is not None:
 			res = find_pages_by_title(spaceKey, title)
 			if len(res) == 0:
 				raise Exception('No pages are found in space `{0}` with title: `{1}`'.format(spaceKey, title))
 			elif len(res) == 1:
 				info = res[0]
-				edit_page(info, newTitle, content)
-				return info
+				return edit_page(info, newTitle, content)
 			else: # len(res) > 1:
 				raise Exception('Multiple pages are found in space `{0}` with title: `{1}`'.format(spaceKey, title))
 		elif spaceKey is not None and newTitle is not None:
@@ -158,11 +156,10 @@ def create_page(spaceKey: str, title: str, content: str) -> dict:
 
 	info = r.json()
 	print("Created: {0} (version {1})".format(info['_links']['webui'], info['version']['number']))
-
 	return info
 
 
-def edit_page(info: dict, title: Optional[str], content: str) -> None:
+def edit_page(info: dict, title: Optional[str], content: str) -> dict:
 	pageid = int(info['id'])
 	ver = int(info['version']['number']) + 1
 	if title is None:
@@ -196,6 +193,7 @@ def edit_page(info: dict, title: Optional[str], content: str) -> None:
 
 	info = r.json()
 	print("Edited: {0} (version {1})".format(info['_links']['webui'], info['version']['number']))
+	return info
 
 
 if __name__ == "__main__":
