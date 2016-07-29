@@ -168,10 +168,9 @@ def edit_page(info: dict, title: Optional[str], content: str) -> None:
 	if title is None:
 		title = info['title']
 
-	ancestors = info['ancestors']
-	for anc in ancestors:
-		del anc['_links']
-		del anc['_expandable']
+	# https://answers.atlassian.com/questions/5278993/updating-a-confluence-page-with-rest-api-problem-with-ancestors
+	allAncestors = info['ancestors']
+	ancestors = [{'id' : allAncestors[-1]['id']}] if len(allAncestors) != 0 else []
 
 	data = {
 		'id': str(pageid),
