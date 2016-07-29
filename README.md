@@ -67,6 +67,36 @@ See examples in the `example/` directory.
 }
 ```
 
+### Extra syntax
+
+#### Link type
+
+CSF supports three types of links:
+
+1. `url`
+
+		![Fig. 1](http://example.com/fig-1.png)
+
+2. `attachment`
+
+		![Fig. 2](fig-2.png){type="attachment"}
+
+3. `page`
+
+		![Fig. 3](fig-3.png){type="page", space-key="MYKEY", content-title="My Page Title"}
+	
+#### Table cell color
+
+CSF supports the following colors for table cells:
+
+	| color                                  |
+	|----------------------------------------|
+	| <span class="red">RED FOO</span>       |
+	| <span class="yellow">YELLOW BAR</span> |
+	| <span class="green">GREEN BAZ</span>   |
+	| <span class="grey">GREY QWE</span>     |
+	| <span class="blue">BLUE ASD</span>     |
+
 ## Confluence poster
 
     confluence_poster.py --baseurl BASEURL [--user USER] ([--space SPACE] --title TITLE | --pageid PAGEID) [--new-title NEW_TITLE] ([--file FILE] | --text TEXT)
