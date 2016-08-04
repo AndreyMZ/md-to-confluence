@@ -31,7 +31,7 @@ def main():
 	file = pathlib.Path(args.file)
 
 	# Read Pandoc markwdown file.
-	with file.open('r') as fd:
+	with file.open('r', encoding='utf_8_sig') as fd:
 		lines = fd.readlines()
 
 	# Extract YAML metadata block from Pandoc markdown.
@@ -133,10 +133,10 @@ def main():
 	confluenceMetadata[CONFLUENCE_PAGE_VERSION] = info['version']['number']
 
 	# Rewrite Pandoc markdown file with updated YAML metadata block.
-	fd = tempfile.NamedTemporaryFile('w', delete=False, dir=str(file.parent), suffix='.tmp') # type: io.TextIOWrapper
+	fd = tempfile.NamedTemporaryFile('w', encoding='utf_8', delete=False, dir=str(file.parent), suffix='.tmp') # type: io.TextIOWrapper
 	with fd:
 		fd.write('---\n')
-		yaml.dump(metadata, fd, default_flow_style=False)
+		yaml.dump(metadata, fd, default_flow_style=False, allow_unicode=True)
 		fd.write('...\n')
 		fd.writelines(lines)
 	os.replace(fd.name, str(file)) # src and dst are on the same filesystem
