@@ -67,6 +67,15 @@ See examples in the `example/` directory.
 }
 ```
 
+
+### Limitations
+
+#### Definition list
+
+Definition lists are not supported by Confluense Storage Format (CSF).
+The suggestion is here: https://jira.atlassian.com/browse/CONF-1322
+
+
 ### Extra syntax
 
 #### Link type
@@ -85,6 +94,24 @@ CSF supports three types of links:
 
 		![Fig. 3](fig-3.png){type="page", space-key="MYKEY", content-title="My Page Title"}
 	
+#### Code block attributes
+
+CSF supports the following [code block attibutes](http://pandoc.org/MANUAL.html#extension-fenced_code_attributes):
+
+- Language class - the first defined class. Syntax highlighting is supported for the following languages: https://confluence.atlassian.com/doc/code-block-macro-139390.html#CodeBlockMacro-Parameters
+- `.numberLines` class
+- `startFrom`
+- `title`
+- `.collapse` class
+
+E.g.:
+
+    ~~~ {.c .numberLines startFrom=4 title="myfile.c" .collapse}
+    int main() {
+        return 0;
+    }
+    ~~~
+
 #### Table cell color
 
 CSF supports the following colors for table cells:
@@ -96,6 +123,7 @@ CSF supports the following colors for table cells:
 	| <span class="green">GREEN BAZ</span>   |
 	| <span class="grey">GREY QWE</span>     |
 	| <span class="blue">BLUE ASD</span>     |
+
 
 ## Confluence poster
 

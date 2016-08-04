@@ -234,6 +234,7 @@ function Code(s, attr)
 	return "<code" .. attributes(attr) .. ">" .. escape(s) .. "</code>"
 end
 
+-- https://confluence.atlassian.com/doc/code-block-macro-139390.html#CodeBlockMacro-Parameters
 local supported_langs = {
 	'actionscript3',
 	'bash',
