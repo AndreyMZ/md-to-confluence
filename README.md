@@ -25,7 +25,7 @@ YAML metadata used:
 
 - `title` - new title.
 
-- `author` - is used to guess `user-name` if it is not specified.
+- `author` - is used to guess username if it is not specified.
 
 - `confluence`
 
@@ -35,7 +35,7 @@ YAML metadata used:
     
         Examples:
         
-        - `https://jsmith@example.com:443/confluence/display/~azelenchuk/My+existing+page`
+        - `https://jsmith@example.com:443/confluence/display/~jsmith/My+existing+page`
         - `https://jsmith@example.com:443/confluence/pages/viewpage.action?pageId=12345`
     
     -  `base-url` is required to create new page.
@@ -50,9 +50,11 @@ YAML metadata used:
     -  `page-version` is not required. 
 
 If username is not specified as part of the URL, it is guessed from first `author` (e.g.: John Smith -> jsmith).
-If `author` is not specified, default is from the environment or password database.
+If `author` is not specified, default username is from the environment or password database.
 
-Password is prompted in console. It is cached in the system keyring service. 
+New page is created in user's home space, e.g. `~jsmith`.
+
+Password is prompted in console. It is cached in the system keyring service.
 
 See examples in the `example/` directory.
 
