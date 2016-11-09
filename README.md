@@ -80,19 +80,19 @@ The suggestion is here: https://jira.atlassian.com/browse/CONF-1322
 
 ### Extra syntax
 
-#### Link type
+#### Image link type
 
-CSF supports three types of links:
+CSF supports three types of image links:
 
 1. `url`
 
 		![Fig. 1](http://example.com/fig-1.png)
 
-2. `attachment`
+2. `attachment` (from this page)
 
 		![Fig. 2](fig-2.png){type="attachment"}
 
-3. `page`
+3. `page` (attachment from other page)
 
 		![Fig. 3](fig-3.png){type="page", space-key="MYKEY", content-title="My Page Title"}
 	
