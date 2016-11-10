@@ -243,7 +243,7 @@ function Image(s, src, tit, attr)
 end
 
 function CaptionedImage(src, tit, caption, attr)
-	return '<ac:image ac:align="center" ac:border="true" ac:title="' .. caption .. '">\
+	return '<ac:image ac:align="center" ac:border="true" ac:title="' .. escape(caption,true) .. '">\
   ' .. innerImageTag(src, attr) .. '\
 </ac:image>\
 <p style="text-align: center;">' .. escape(caption) .. '</p>'
@@ -377,10 +377,18 @@ function Para(s)
 	return "<p>" .. s .. "</p>"
 end
 
+
+local function Anchor(id)
+	return '<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">' .. escape(id,true) .. '</ac:parameter></ac:structured-macro>'
+end
+
 -- lev is an integer, the header level.
 function Header(lev, s, attr)
-	return "<h" .. lev .. attributes(attr) ..  ">" .. s .. "</h" .. lev .. ">"
+	local id = attr['id']
+	attr['id'] = nil
+	return  Anchor(id) .. "\n<h" .. lev .. attributes(attr) ..  ">" .. s .. "</h" .. lev .. ">"
 end
+
 
 function BlockQuote(s)
 	return "<blockquote>\n" .. s .. "\n</blockquote>"
