@@ -198,7 +198,26 @@ function Strikeout(s)
 	return '<del>' .. s .. '</del>'
 end
 
+
+local function InternalLink(s, src, tit, attr)
+	local buffer = {}
+	local function add(s)
+		table.insert(buffer, s)
+	end
+	add('<ac:link ac:anchor="' .. escape(src:sub(2),true) .. '">')
+	if attr['content-title'] then
+		add('  <ri:page ri:content-title="' .. escape(attr['content-title'],true) .. '" ri:space-key="' .. escape(attr['space-key'],true) .. '"/>')
+	end
+	add('  <ac:plain-text-link-body><![CDATA[' .. cdataEscape(s) .. ']]></ac:plain-text-link-body>')
+	add('</ac:link>')
+	return table.concat(buffer, '\n')
+end
+
 function Link(s, src, tit, attr)
+	if src:byte(1) == string.byte('#') then
+		return InternalLink(s, src, tit, attr)
+	end
+	
 	if tit and tit ~= '' then
 		return '<a href="' .. escape(src,true) .. '" title="' .. escape(tit,true) .. '">' .. s .. '</a>'
 	else
@@ -206,8 +225,8 @@ function Link(s, src, tit, attr)
 	end
 end
 
+
 local function innerImageTag(src, attr)
-	local innerTag
 	if attr['type'] == 'attachment' then
 		return '<ri:attachment ri:filename="' .. escape(src,true) .. '"/>'
 	elseif attr['type'] == 'page' then
@@ -229,6 +248,7 @@ function CaptionedImage(src, tit, caption, attr)
 </ac:image>\
 <p style="text-align: center;">' .. escape(caption) .. '</p>'
 end
+
 
 function Code(s, attr)
 	return "<code" .. attributes(attr) .. ">" .. escape(s) .. "</code>"
