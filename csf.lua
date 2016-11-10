@@ -351,8 +351,12 @@ function RawInline(lang, tagStr)
 end
 
 function RawBlock(lang, tagStr)
-	-- Strip HTML comment.
+	-- Strip HTML comments, styles, scripts.
 	if tagStr:starts('<!--') and tagStr:ends('-->') then
+		return ''
+	elseif tagStr:starts('<style ') and tagStr:ends('</style>') then
+		return ''
+	elseif tagStr:starts('<script ') and tagStr:ends('</script>') then
 		return ''
 	else
 		return tagStr
