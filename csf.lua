@@ -134,7 +134,7 @@ function Doc(body, metadata, variables)
 	local function add(s)
 		table.insert(buffer, s)
 	end
-	if metadata['toc'] then
+	if metadata['toc-title'] or metadata['toc-min-level'] or metadata['toc-depth'] then
 		add(toc(metadata))
 	end
 	add(body)

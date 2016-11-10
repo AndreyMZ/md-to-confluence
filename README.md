@@ -47,7 +47,13 @@ YAML metadata used:
          - `https://confluence.example.com`
          - `https://jsmith@example.com:443/confluence`
          
-    -  `page-version` is not required. 
+    -  `page-version` is not required.
+    
+- `toc-title` - title of TOC (Table of Content). Default: no title.
+
+- `toc-min-level` - minimum header level to include in TOC.
+
+- `toc-depth` - maximum header level to include in TOC.
 
 If username is not specified as part of the URL, it is guessed from first `author` (e.g.: John Smith -> jsmith).
 If `author` is not specified, default username is from the environment or password database.
@@ -71,6 +77,10 @@ See examples in the `example/` directory.
 
 
 ### Limitations
+
+#### Table of Content (TOC)
+
+TOC is added if and only if at least one of `toc-*` is specified in the metadata.
 
 #### Definition list
 
