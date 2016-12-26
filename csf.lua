@@ -225,7 +225,7 @@ function SoftBreak()
 end
 
 function LineBreak()
-	return "<br/>"
+	return "<br/>\n"
 end
 
 -- Blocksep is used to separate block elements.
