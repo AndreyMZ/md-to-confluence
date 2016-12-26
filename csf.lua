@@ -10,20 +10,6 @@
 -- syntax errors.
 
 
---- For debugging ---
-
-local function printargs(func, restargs, ...)
-	local buf = {}
-	for _,v in ipairs(arg) do
-		table.insert(buf, "'" .. tostring(v) .. "'")
-	end
-	for _,v in ipairs(restargs) do
-		table.insert(buf, "'" .. tostring(v) .. "'")
-	end
-	print(func .. '(' .. table.concat(buf, ', ') .. ')')
-end
-
-
 --- Character escaping ---
 
 local function escape(s, in_attribute)
@@ -90,6 +76,79 @@ end
 function string.ends(str, theEnd)
    return (theEnd == '') or (string.sub(str, -string.len(theEnd)) == theEnd)
 end
+
+
+--- For debugging ---
+
+-- Usage:
+--     function MyFunc1(x, y, ...)
+--         printargs('MyFunc1', args, x, y)
+--     end
+-- or
+--     function MyFunc2(x, y)
+--         printargs('MyFunc2', {}, x, y)
+--     end
+local function printargs(func, restargs, ...)
+	local buf = {}
+	for _,v in ipairs(arg) do
+		if type(v) == "table" then
+			table.insert(buf, "'" .. attributes(v) .. "'")
+		else
+			table.insert(buf, "'" .. tostring(v) .. "'")
+		end
+	end
+	for _,v in ipairs(restargs) do
+		table.insert(buf, "'" .. tostring(v) .. "'")
+	end
+	print(func .. '(' .. table.concat(buf, ', ') .. ')')
+end
+
+
+--- Global variables
+
+local supported_colors = {
+	'red',
+	'yellow',
+	'green',
+	'grey',
+	'blue'
+}
+
+local function getColorFromClasses(classes)
+	for _, class in ipairs(classes) do
+		if contains(supported_colors, class) then return class end
+	end
+	return nil
+end
+
+-- https://confluence.atlassian.com/doc/code-block-macro-139390.html#CodeBlockMacro-Parameters
+local supported_langs = {
+	'actionscript3',
+	'bash',
+	'csharp',
+	'c#',
+	'coldfusion',
+	'cpp',
+	'css',
+	'delphi',
+	'diff',
+	'erlang',
+	'groovy',
+	'html',
+	'xml',
+	'java',
+	'javafx',
+	'javascript',
+	'none',
+	'perl',
+	'php',
+	'powershell',
+	'python',
+	'ruby',
+	'scala',
+	'sql',
+	'vb',
+}
 
 
 --- Render functions ---
@@ -254,35 +313,6 @@ function Code(s, attr)
 	return "<code" .. attributes(attr) .. ">" .. escape(s) .. "</code>"
 end
 
--- https://confluence.atlassian.com/doc/code-block-macro-139390.html#CodeBlockMacro-Parameters
-local supported_langs = {
-	'actionscript3',
-	'bash',
-	'csharp',
-	'c#',
-	'coldfusion',
-	'cpp',
-	'css',
-	'delphi',
-	'diff',
-	'erlang',
-	'groovy',
-	'html',
-	'xml',
-	'java',
-	'javafx',
-	'javascript',
-	'none',
-	'perl',
-	'php',
-	'powershell',
-	'python',
-	'ruby',
-	'scala',
-	'sql',
-	'vb',
-}
-
 -- http://pandoc.org/MANUAL.html#fenced-code-blocks
 function CodeBlock(s, attr)
 	local classes = string.split(attr['class'])
@@ -370,8 +400,35 @@ end
 
 -- Native Span blocks: http://pandoc.org/MANUAL.html#extension-native_spans
 function Span(s, attr)
-	return "<span" .. attributes(attr) .. ">" .. s .. "</span>"
+	local classes = attr['class']:split()
+	if contains(classes, 'status') then
+		return StatusMacro(s, attr)
+	else
+		return "<span" .. attributes(attr) .. ">" .. s .. "</span>"
+	end
 end
+
+
+function StatusMacro(s, attr)
+	local buffer = {}
+	local function add(s)
+		table.insert(buffer, s)
+	end
+
+	local classes = attr['class']:split()
+	local color = getColorFromClasses(classes)
+	local subtle = contains(classes, "subtle")
+
+	add('<ac:structured-macro ac:name="status">')
+	if color then
+		add('  <ac:parameter ac:name="colour">' .. color .. '</ac:parameter>')
+	end
+	add('  <ac:parameter ac:name="title">' .. s .. '</ac:parameter>')
+	add('  <ac:parameter ac:name="subtle">' .. tostring(subtle) .. '</ac:parameter>')
+	add('</ac:structured-macro>')
+	return table.concat(buffer, '\n')
+end
+
 
 function Para(s)
 	return "<p>" .. s .. "</p>"
@@ -440,7 +497,6 @@ function html_align(align)
 	end
 end
 
-local supported_cell_colors = {'red', 'green', 'yellow', 'grey', 'blue'}
 
 -- Caption is a string, aligns is an array of strings,
 -- widths is an array of floats, headers is an array of
@@ -460,7 +516,7 @@ function Table(caption, aligns, widths, headers, rows)
 		end
 
 		local color, text = c:match('^<span class="(%w*)">(.*)</span>$')
-		if color and text and contains(supported_cell_colors, color) then
+		if color and text and contains(supported_colors, color) then
 			attrs['class'] = 'highlight-' .. color
 			attrs['data-highlight-colour'] = color
 		else

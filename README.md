@@ -127,6 +127,13 @@ E.g.:
 #### Table cell color
 
 CSF supports the following colors for table cells:
+- red
+- yellow
+- green
+- grey
+- blue
+
+Example:
 
 	| color                 |
 	|-----------------------|
@@ -145,6 +152,63 @@ or
 	| <span class="green">GREEN BAZ</span>   |
 	| <span class="grey">GREY QWE</span>     |
 	| <span class="blue">BLUE ASD</span>     |
+
+#### Status Macro
+
+Confluence Documentation: https://confluence.atlassian.com/doc/status-macro-223222355.html
+
+Example:
+
+    [NO COLOR]{.status}
+    [RED FOO]{.status .red}
+    [YELLOW BAR]{.status .yellow}
+    [GREEN BAZ]{.status .green}
+    [GREY QWE]{.status .grey}
+    [BLUE ASD]{.status .blue}
+
+    [NO COLOR]{.status .subtle}
+    [RED FOO]{.status .subtle .red}
+    [YELLOW BAR]{.status .subtle .yellow}
+    [GREEN BAZ]{.status .subtle .green}
+    [GREY QWE]{.status .subtle .grey}
+    [BLUE ASD]{.status .subtle .blue}
+
+You can use the following compatible CSS style for HTML output:
+
+    <style type="text/css">
+        /* CSF Status Macro */
+        .status {
+            background-clip: border-box;
+            border-style: solid;
+            border-radius: 3px;
+            border-width: 1px;
+            display: inline-block;
+            font-size: 11px;
+            font-weight: bold;
+            line-height: 1;
+            min-width: 76px;
+            padding: 3px 5px 2px 5px;
+            text-align: center;
+            text-decoration: none;
+            text-transform: uppercase;
+        }
+
+        /* Default style */
+        .status        { color: #333333; background-color: #cccccc; border-color: #cccccc; }
+        .status.red    { color: #ffffff; background-color: #D04436; border-color: #d04437; }
+        .status.yellow { color: #594300; background-color: #ffd351; border-color: #ffd351; }
+        .status.green  { color: #ffffff; background-color: #14892c; border-color: #14892c; }
+        .status.grey   { color: #333333; background-color: #cccccc; border-color: #cccccc; }
+        .status.blue   { color: #ffffff; background-color: #4a6785; border-color: #4a6785; }
+
+        /* Subtle (outline) style */
+        .status.subtle        { color: #333333; background-color: #ffffff; border-color: #cccccc; }
+        .status.subtle.red    { color: #d04437; background-color: #ffffff; border-color: #f8d3d1; }
+        .status.subtle.yellow { color: #594300; background-color: #ffffff; border-color: #ffe28c; }
+        .status.subtle.green  { color: #14892c; background-color: #ffffff; border-color: #b2d8b9; }
+        .status.subtle.grey   { color: #333333; background-color: #ffffff; border-color: #cccccc; }
+        .status.subtle.blue   { color: #4a6785; background-color: #ffffff; border-color: #e4e8ed; }
+    </style>
 
 
 ## Confluence poster
