@@ -31,7 +31,7 @@ def main() -> None:
 	parser = argparse.ArgumentParser(usage=usage.format(os.path.basename(sys.argv[0])))
 	parser.add_argument("--baseurl", required=True,
 	                    help='Conflunce base URL. Format: https://example.com/confluence')
-	parser.add_argument("--user", default=getpass.getuser(),
+	parser.add_argument("--user", default=None,
 	                    help="User name to log into Confluence. Default: from the environment or password database.")
 	parser.add_argument("--pageid", type=int,
 	                    help="Conflunce page id to edit page.")
@@ -64,23 +64,15 @@ def main() -> None:
 
 
 def authenticate(baseUrl: str, username: str = None) -> None:
-	if username is None:
-		username = getpass.getuser()
-	passwd = keyring.get_password(KEYRING_SERVICE_NAME, username)
-	if passwd is None:
-		passwd = getpass.getpass()
-		keyring.set_password(KEYRING_SERVICE_NAME, username, passwd)
-
 	global BASE_URL
 	global CREDENTIALS
 	BASE_URL = baseUrl
-	CREDENTIALS = (username, passwd)
-
+	import authenticate
+	CREDENTIALS = authenticate.authenticate(KEYRING_SERVICE_NAME, username)
 
 def delete_password(username: str = None) -> None:
-	if username is None:
-		username = getpass.getuser()
-	keyring.delete_password(KEYRING_SERVICE_NAME, username)
+	import authenticate
+	authenticate.delete_password(KEYRING_SERVICE_NAME, username)
 
 
 def post_page(pageid: Optional[int], spaceKey: Optional[str], title: Optional[str], newTitle: str, content: str) -> dict:

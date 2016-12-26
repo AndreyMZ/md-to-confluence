@@ -112,8 +112,7 @@ def main():
 	res = subprocess.run(cmd, stdout=subprocess.PIPE)
 	content = res.stdout.decode('utf-8')
 
-	# Print username ans ask password.
-	print('Username:', username, file=sys.stderr)
+	# Ask username and password.
 	authenticate(baseUrl, username)
 
 	# Request Confluence API to edit or create a page.
