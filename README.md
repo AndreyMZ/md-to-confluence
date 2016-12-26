@@ -128,6 +128,16 @@ E.g.:
 
 CSF supports the following colors for table cells:
 
+	| color                 |
+	|-----------------------|
+	| [RED FOO]{.red}       |
+	| [YELLOW BAR]{.yellow} |
+	| [GREEN BAZ]{.green}   |
+	| [GREY QWE]{.grey}     |
+	| [BLUE ASD]{.blue}     |
+
+or
+
 	| color                                  |
 	|----------------------------------------|
 	| <span class="red">RED FOO</span>       |
