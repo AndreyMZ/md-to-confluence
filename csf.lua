@@ -515,7 +515,13 @@ function Table(caption, aligns, widths, headers, rows)
 			attrs['style'] = 'text-align: ' .. align .. ';'
 		end
 
-		local color, text = c:match('^<span class="(%w*)">(.*)</span>$')
+		local color, text = c:match('^<p><span class="(%w*)">(.*)</span></p>$')
+		if text then
+			text = '<p>' .. text .. '</p>'
+		else
+			color, text = c:match('^<span class="(%w*)">(.*)</span>$')
+		end
+		
 		if color and text and contains(supported_colors, color) then
 			attrs['class'] = 'highlight-' .. color
 			attrs['data-highlight-colour'] = color
