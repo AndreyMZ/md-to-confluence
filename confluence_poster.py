@@ -6,14 +6,12 @@ https://developer.atlassian.com/confdev/confluence-server-rest-api/confluence-re
 """
 
 import argparse
-import getpass
 import json
 import os
 import sys
 import urllib.parse
 from typing import List, Optional
 
-import keyring
 import requests
 
 # Globals
@@ -75,7 +73,7 @@ def delete_password(username: str = None) -> None:
 	authenticate.delete_password(KEYRING_SERVICE_NAME, username)
 
 
-def post_page(pageid: Optional[int], spaceKey: Optional[str], title: Optional[str], newTitle: str, content: str) -> dict:
+def post_page(pageid: Optional[int], spaceKey: Optional[str], title: Optional[str], newTitle: str, content: str) -> Optional[dict]:
 	"""
 	Required arguments:
 	- To edit page by id: pageid
@@ -90,7 +88,13 @@ def post_page(pageid: Optional[int], spaceKey: Optional[str], title: Optional[st
 		elif spaceKey is not None and title is not None:
 			res = find_pages_by_title(spaceKey, title)
 			if len(res) == 0:
-				raise Exception('No pages are found in space `{0}` with title: `{1}`'.format(spaceKey, title))
+				print('No pages are found in space `{0}` with title: `{1}`'.format(spaceKey, title))
+				if title == newTitle:
+					sys.stdout.write('Do you want to create it? [y/N]: ')
+					sys.stdout.flush()
+					if sys.stdin.readline().rstrip('\n').lower() == 'y':
+						return create_page(spaceKey, title, content)
+				return None
 			elif len(res) == 1:
 				info = res[0]
 				return edit_page(info, newTitle, content)

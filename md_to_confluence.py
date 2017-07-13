@@ -125,6 +125,9 @@ def main():
 		else:
 			print(response.text)
 		return
+	else:
+		if info is None:
+			return
 
 	# Update metadata.
 	confluenceMetadata.pop(CONFLUENCE_BASE_URL, None)
