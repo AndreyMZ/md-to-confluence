@@ -105,7 +105,7 @@ def main():
 
 	# Convert Pandoc markdown file to xhtml using `pandoc` utility.
 	cmd = ["pandoc",
-	       "--from=markdown+hard_line_breaks+lists_without_preceding_blankline+compact_definition_lists+smart",
+	       "--from=markdown+hard_line_breaks+lists_without_preceding_blankline+compact_definition_lists+smart+autolink_bare_uris",
 	       "--to", os.path.join(os.path.dirname(sys.argv[0]), "csf.lua"),
 	       str(file)]
 	res = subprocess.run(cmd, stdout=subprocess.PIPE)
