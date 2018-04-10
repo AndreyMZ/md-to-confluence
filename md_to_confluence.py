@@ -3,9 +3,9 @@ import argparse
 import getpass
 import io
 import os
-import sys
 import pathlib
 import subprocess
+import sys
 import tempfile
 import urllib.parse
 from typing import List, Optional
@@ -40,8 +40,11 @@ def main():
 	if len(lines) > 0 and lines[0] == '---\n':
 		lines.pop(0)
 		while True:
+			if len(lines) == 0:
+				raise Exception('No YAML metadata block end')
 			line = lines.pop(0)
-			if line == '...\n':
+			if line in ('...\n', '---\n'):
+				metadata_end_line = line
 				break
 			metadata_content += line
 	else:
@@ -138,7 +141,7 @@ def main():
 	with fd:
 		fd.write('---\n')
 		yaml.dump(metadata, fd, default_flow_style=False, allow_unicode=True)
-		fd.write('...\n')
+		fd.write(metadata_end_line)
 		fd.writelines(lines)
 	os.replace(fd.name, str(file)) # src and dst are on the same filesystem
 
