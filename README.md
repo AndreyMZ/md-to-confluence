@@ -1,11 +1,11 @@
 # Requirements
 
 - [Python 3](https://www.python.org/downloads/)
-- Python packages (use `pip install PACKAGE_NAME` or, if you have several versions of python on Windows, `py -3 -m pip install PACKAGE_NAME`):
+- Python packages (use `pip install -r requirements.txt` or, if you have several versions of python on Windows, `py -3 -m pip install -r requirements.txt`):
     - [keyring](http://pythonhosted.org/keyring/)
     - [requests](https://requests.readthedocs.io/en/master/)
     - [pyyaml](pyyaml.org/wiki/PyYAMLDocumentation)
-- [Pandoc](http://pandoc.org/installing.html)
+- [Pandoc](http://pandoc.org/installing.html) >= 2.1.3
 
 # Usage
 
@@ -42,10 +42,10 @@ YAML metadata used:
     
         Username and port are optional.
     
-         Examples:
-         
-         - `https://confluence.example.com`
-         - `https://jsmith@example.com:443/confluence`
+        Examples:
+
+        - `https://confluence.example.com`
+        - `https://jsmith@example.com:443/confluence`
          
     -  `page-version` is not required.
     
