@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 import urllib.parse
+from collections import OrderedDict
 from typing import List, Optional
 
 import requests
@@ -49,6 +50,7 @@ def main():
 			metadata_content += line
 	else:
 		raise Exception('No YAML metadata block')
+	yaml_preserve_order()
 	metadata = yaml.load(metadata_content)
 
 	confluenceMetadata = metadata.get(CONFLUENCE) # type: Optional[dict]
@@ -144,6 +146,17 @@ def main():
 		fd.write(metadata_end_line)
 		fd.writelines(lines)
 	os.replace(fd.name, str(file)) # src and dst are on the same filesystem
+
+
+def yaml_preserve_order():
+	def dict_constructor(loader: yaml.Loader, node: yaml.MappingNode):
+		return OrderedDict(loader.construct_pairs(node))
+
+	def dict_representer(dumper: yaml.Dumper, data: OrderedDict):
+		return dumper.represent_dict(data.items())
+
+	yaml.add_constructor(yaml.Loader.DEFAULT_MAPPING_TAG, dict_constructor)
+	yaml.add_representer(OrderedDict, dict_representer)
 
 
 if __name__ == "__main__":
