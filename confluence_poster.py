@@ -143,7 +143,7 @@ def create_page(spaceKey: str, title: str, content: str) -> dict:
 	}
 
 	# Print info and ask confirmation.
-	print('To create: {0}/{1}'.format(spaceKey, title))
+	print('To create: a page in space `{0}` with title `{1}`'.format(spaceKey, title))
 	input("Press Enter to continue...")
 
 	url = '{0}/rest/api/content/'.format(BASE_URL)
