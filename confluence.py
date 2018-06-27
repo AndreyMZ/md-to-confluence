@@ -3,14 +3,20 @@ https://docs.atlassian.com/confluence/REST/latest/
 https://developer.atlassian.com/confdev/confluence-server-rest-api/confluence-rest-api-examples
 """
 
-import json
 import sys
 import urllib.parse
-from typing import List, Optional, Tuple
+from enum import Enum
+from typing import List, Optional, Tuple, Dict, Union
 
 import requests
 
 from authenticate import authenticate
+
+
+class Method(Enum):
+	GET = "GET"
+	POST = "POST"
+	PUT = "PUT"
 
 
 class Confluence:
@@ -21,6 +27,7 @@ class Confluence:
 	def __init__(self, baseUrl: str, username: str = None):
 		self.base_url: str = baseUrl
 		self.credentials: Tuple[str, str] = authenticate(Confluence.KEYRING_SERVICE_NAME, username)
+		self._session = requests.Session()
 
 
 	def delete_password(self) -> None:
@@ -65,83 +72,84 @@ class Confluence:
 
 
 	def find_pages_by_title(self, spaceKey: str, title: str)  -> List[dict]:
-		url = '{0}/rest/api/content?{1}'.format(self.base_url, urllib.parse.urlencode({
-			'spaceKey': spaceKey,
-			'title': title,
-			'expand': 'version,ancestors,space',
-		}))
-		r = requests.get(url, auth=self.credentials)
-		r.raise_for_status()
-		return r.json()['results']
+		res = self._request(Method.GET, "rest/api/content", query={
+			"spaceKey": spaceKey,
+			"title": title,
+			"expand": "version,ancestors,space",
+		})
+		return res["results"]
 
 
 	def get_page_info(self, pageid: int) -> dict:
-		url = '{0}/rest/api/content/{1}?{2}'.format(self.base_url, pageid, urllib.parse.urlencode({
-			'expand': 'version,ancestors,space',
-		}))
-		r = requests.get(url, auth=self.credentials)
-		r.raise_for_status()
-		return r.json()
+		info = self._request(Method.GET, "rest/api/content/{0}".format(urlencode(pageid)), query={
+			"expand": "version,ancestors,space",
+		})
+		return info
 
 
 	def create_page(self, spaceKey: str, title: str, content: str) -> dict:
-		data = {
-			'type': 'page',
-			"space": {"key": spaceKey},
-			'title': title,
-			'body': {
-				'storage': {
-					'representation': 'storage',
-					'value': str(content),
-				}
-			}
-		}
-
-		# Print info and ask confirmation.
-		print('To create: a page in space `{0}` with title `{1}`'.format(spaceKey, title))
+		print("To create: a page in space `{0}` with title `{1}`".format(spaceKey, title))
 		input("Press Enter to continue...")
 
-		url = '{0}/rest/api/content/'.format(self.base_url)
-		r = requests.post(url, data=json.dumps(data), auth=self.credentials, headers={'Content-Type': 'application/json'})
-		r.raise_for_status()
+		info = self._request(Method.POST, "rest/api/content/", {"expand": "version,ancestors,space"}, {
+			"type": "page",
+			"space": {"key": spaceKey},
+			"title": title,
+			"body": {
+				"storage": {
+					"representation": "storage",
+					"value": content,
+				}
+			}
+		})
 
-		info = r.json()
-		print("Created: {0} (version {1})".format(info['_links']['webui'], info['version']['number']))
+		print("Created: {0} (version {1})".format(info["_links"]["webui"], info["version"]["number"]))
 		return info
 
 
 	def edit_page(self, info: dict, title: Optional[str], content: str) -> dict:
-		pageid: str = info['id']
-		ver = int(info['version']['number']) + 1
+		print('Page to edit: {0} (version {1})'.format(info['_links']['webui'], info['version']['number']))
+		input("Press Enter to continue...")
+		
+		pageid: str = info["id"]
+		ver = int(info["version"]["number"]) + 1
 		if title is None:
-			title = info['title']
+			title = info["title"]
 
 		# https://answers.atlassian.com/questions/5278993/updating-a-confluence-page-with-rest-api-problem-with-ancestors
 		allAncestors = info['ancestors']
 		ancestors = [{'id' : allAncestors[-1]['id']}] if len(allAncestors) != 0 else []
 
-		data = {
-			'id': pageid,
-			'type': 'page',
-			'title': title,
-			'version': {'number': ver},
-			'ancestors': ancestors,
-			'body': {
-				'storage': {
-					'representation': 'storage',
-					'value': str(content),
+		info = self._request(Method.PUT, "rest/api/content/{0}".format(urlencode(pageid)), data={
+			"id": pageid,
+			"type": "page",
+			"title": title,
+			"version": {"number": ver},
+			"ancestors": ancestors,
+			"body": {
+				"storage": {
+					"representation": "storage",
+					"value": content,
 				}
 			}
-		}
+		})
 
-		# Print info and ask confirmation.
-		print('Page to edit: {0} (version {1})'.format(info['_links']['webui'], info['version']['number']))
-		input("Press Enter to continue...")
-
-		url = '{base}/rest/api/content/{pageid}'.format(base=self.base_url, pageid=pageid)
-		r = requests.put(url, data=json.dumps(data), auth=self.credentials, headers={'Content-Type': 'application/json'})
-		r.raise_for_status()
-
-		info = r.json()
 		print("Edited: {0} (version {1})".format(info['_links']['webui'], info['version']['number']))
 		return info
+
+
+	def _request(self, method: Method, path: str, query: Optional[Dict[str, str]] = None, data: Optional[dict] = None) -> dict:
+		r = self._session.request(method.value, "{0}/{1}".format(self.base_url, path),
+		                          params=query,
+		                          json=data,
+		                          auth = self.credentials,
+		                          headers = {'Content-Type': 'application/json'})
+		r.raise_for_status()
+		return r.json()
+
+
+def urlencode(value: Union[str, int]) -> str:
+	if isinstance(value, int):
+		return str(value)
+	else:
+		return urllib.parse.quote(value, safe="")
