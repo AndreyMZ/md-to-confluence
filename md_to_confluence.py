@@ -127,6 +127,7 @@ def main():
 		if response.status_code == 401:
 			print('Authentication failed.')
 		else:
+			print(ex)
 			print(response.text)
 		return
 	else:
@@ -146,6 +147,8 @@ def main():
 		fd.write(metadata_end_line)
 		fd.writelines(lines)
 	os.replace(fd.name, str(file)) # src and dst are on the same filesystem
+
+	confluence.attach_file(info, file, content_type="text/markdown", comment="Source code of this page.")
 
 
 def yaml_preserve_order():

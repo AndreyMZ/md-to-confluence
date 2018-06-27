@@ -6,9 +6,11 @@ https://developer.atlassian.com/confdev/confluence-server-rest-api/confluence-re
 import sys
 import urllib.parse
 from enum import Enum
-from typing import List, Optional, Tuple, Dict, Union
+from pathlib import Path
+from typing import List, Optional, Tuple, Dict, Union, TextIO
 
 import requests
+from typing.io import BinaryIO
 
 from authenticate import authenticate
 
@@ -138,12 +140,47 @@ class Confluence:
 		return info
 
 
-	def _request(self, method: Method, path: str, query: Optional[Dict[str, str]] = None, data: Optional[dict] = None) -> dict:
+	def attach_file(self, page_info: dict, file: Path, content_type: Optional[str] = None, comment: Optional[str] = None):
+		pageid: str = page_info["id"]
+
+		path = "rest/api/content/{0}/child/attachment".format(urlencode(pageid))
+
+		response = self._request(Method.GET, path, {"filename": file.name})
+		attachments = response["results"]
+		if len(attachments) > 0:
+			path += "/{0}/data".format(attachments[0]["id"])
+
+		data = [
+			("comment", comment),
+			("minorEdit", "true"),
+		]
+		with file.open('rb') as file_obj:
+			self._request_multipart(Method.POST, path, data=data, files=[('file', (file.name, file_obj, content_type))])
+
+
+	def _request(self, method: Method, path: str,
+	             query: Optional[Dict[str, str]] = None,
+	             data: Optional[dict] = None,
+	            ) -> dict:
 		r = self._session.request(method.value, "{0}/{1}".format(self.base_url, path),
 		                          params=query,
 		                          json=data,
-		                          auth = self.credentials,
-		                          headers = {'Content-Type': 'application/json'})
+		                          auth=self.credentials)
+		r.raise_for_status()
+		return r.json()
+
+
+	def _request_multipart(self, method: Method, path: str,
+	                       query: Optional[Dict[str, str]] = None,
+	                       data: Optional[List[Tuple[str, Optional[str]]]] = None,
+	                       files: Optional[List[Tuple[str, Tuple[str, Union[TextIO, BinaryIO], Optional[str]]]]] = None,
+	                      ) -> dict:
+		r = self._session.request(method.value, "{0}/{1}".format(self.base_url, path),
+		                          params=query,
+		                          data=data,
+		                          files=files,
+		                          auth=self.credentials,
+		                          headers={"X-Atlassian-Token": "nocheck"})
 		r.raise_for_status()
 		return r.json()
 
