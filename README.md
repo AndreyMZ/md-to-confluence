@@ -48,7 +48,9 @@ YAML metadata used:
         - `https://jsmith@example.com:443/confluence`
          
     -  `page-version` is not required.
-    
+	
+	-  `note-autogen` - add to the top of the page an information panel which says that this page is automatically generated. Boolean. Default: false.
+
 - `toc-title` - title of TOC (Table of Content). Default: no title.
 
 - `toc-min-level` - minimum header level to include in TOC.

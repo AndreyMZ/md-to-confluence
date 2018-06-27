@@ -31,6 +31,10 @@ class Confluence:
 		self.credentials: Tuple[str, str] = authenticate(Confluence.KEYRING_SERVICE_NAME, username)
 		self._session = requests.Session()
 
+		# For debugging.
+		# self._session.proxies.update({"http": "127.0.0.1:8888", "https": "127.0.0.1:8888"})
+		# self._session.verify = False
+
 
 	def delete_password(self) -> None:
 		import authenticate

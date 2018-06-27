@@ -1,12 +1,14 @@
 #! python3
 import argparse
 import getpass
+import html
 import io
 import os
 import pathlib
 import subprocess
 import sys
 import tempfile
+import textwrap
 import urllib.parse
 from collections import OrderedDict
 from typing import List, Optional
@@ -21,6 +23,7 @@ CONFLUENCE_USER_NAME = 'user-name'
 CONFLUENCE_BASE_URL = 'base-url'
 CONFLUENCE_PAGE_URL = 'page-url'
 CONFLUENCE_PAGE_VERSION = 'page-version'
+CONFLUENCE_NOTE_AUTOGEN = 'note-autogen'
 
 
 def main():
@@ -116,6 +119,14 @@ def main():
 	res = subprocess.run(cmd, stdout=subprocess.PIPE)
 	content = res.stdout.decode('utf-8')
 
+	if confluenceMetadata.get(CONFLUENCE_NOTE_AUTOGEN, False): # type: bool
+		note = textwrap.dedent("""\
+			<ac:structured-macro ac:name="info" ac:schema-version="1">
+			  <ac:rich-text-body><p>This page is generated automatically from <ac:link><ri:attachment ri:filename="{filename}"/></ac:link> using <a href="https://code.pp.plesk.ru/azelenchuk/confluence-poster">confluence-poster</a>.</p></ac:rich-text-body>
+			</ac:structured-macro>
+		""").format(filename=html.escape(file.name))
+		content = note + content
+
 	# Ask username and password.
 	confluence = Confluence(baseUrl, username)
 
@@ -148,7 +159,13 @@ def main():
 		fd.writelines(lines)
 	os.replace(fd.name, str(file)) # src and dst are on the same filesystem
 
-	confluence.attach_file(info, file, content_type="text/markdown", comment="Source code of this page.")
+	# Attach source file.
+	try:
+		confluence.attach_file(info, file, content_type="text/markdown", comment="Source code of this page.")
+	except requests.exceptions.HTTPError as ex:
+		response = ex.response # type: requests.models.Response
+		print(ex)
+		print(response.text)
 
 
 def yaml_preserve_order():
