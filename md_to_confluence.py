@@ -14,7 +14,7 @@ from typing import List, Optional
 import requests
 import yaml
 
-from confluence_poster import authenticate, post_page
+from confluence_poster import Confluence
 
 CONFLUENCE = 'confluence'
 CONFLUENCE_USER_NAME = 'user-name'
@@ -117,11 +117,11 @@ def main():
 	content = res.stdout.decode('utf-8')
 
 	# Ask username and password.
-	authenticate(baseUrl, username)
+	confluence = Confluence(baseUrl, username)
 
 	# Request Confluence API to edit or create a page.
 	try:
-		info = post_page(pageId, spaceKey, title, newTitle, content)
+		info = confluence.post_page(pageId, spaceKey, title, newTitle, content)
 	except requests.exceptions.HTTPError as ex:
 		response = ex.response # type: requests.models.Response
 		if response.status_code == 401:
