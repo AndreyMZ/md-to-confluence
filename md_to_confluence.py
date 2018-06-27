@@ -14,7 +14,7 @@ from typing import List, Optional
 import requests
 import yaml
 
-from confluence_poster import Confluence
+from confluence import Confluence
 
 CONFLUENCE = 'confluence'
 CONFLUENCE_USER_NAME = 'user-name'
