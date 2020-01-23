@@ -109,12 +109,12 @@ class Confluence:
 			}
 		})
 
-		print("Created: {0} (version {1})".format(info["_links"]["webui"], info["version"]["number"]))
+		print("Created: {0}{1} (version {2})".format(self.base_url, info["_links"]["webui"], info["version"]["number"]))
 		return info
 
 
 	def edit_page(self, info: dict, title: Optional[str], content: str) -> dict:
-		print('Page to edit: {0} (version {1})'.format(info['_links']['webui'], info['version']['number']))
+		print('Page to edit: {0}{1} (version {2})'.format(self.base_url, info['_links']['webui'], info['version']['number']))
 		input("Press Enter to continue...")
 		
 		pageid: str = info["id"]
@@ -140,7 +140,7 @@ class Confluence:
 			}
 		})
 
-		print("Edited: {0} (version {1})".format(info['_links']['webui'], info['version']['number']))
+		print("Edited: {0}{1} (version {2})".format(self.base_url, info['_links']['webui'], info['version']['number']))
 		return info
 
 

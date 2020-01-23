@@ -63,7 +63,7 @@ def main():
 	if confluenceMetadata is None:
 		raise Exception('No `{0}` section in YAML metadata block'.format(CONFLUENCE))
 
-	# Parse baseUrl, pageId, spaceKey, title from the metadata.
+	# Parse username, baseUrl, pageId, spaceKey, title from the metadata.
 	if CONFLUENCE_PAGE_URL in confluenceMetadata:
 		urlstr = confluenceMetadata[CONFLUENCE_PAGE_URL]
 		url = urllib.parse.urlsplit(urlstr) # type: urllib.parse.SplitResult
@@ -73,12 +73,12 @@ def main():
 
 		username = url.username
 		if plen >= 4 and path.parts[plen-3] == 'display': # e.g. ['/', 'confluence', 'display', '~jsmith', 'Test+page']
-			baseUrl = url.scheme + '://' + url.netloc + str(path.parents[2]).rstrip('/')
+			basePath = str(path.parents[2]).rstrip('/')
 			pageId = None
 			spaceKey = urllib.parse.unquote_plus(path.parts[plen-2])
 			title = urllib.parse.unquote_plus(path.parts[plen-1])
 		elif plen >= 3 and path.parts[plen-2] == 'pages' and path.parts[plen-1] == 'viewpage.action': # e.g. ['/', 'confluence', 'pages', 'viewpage.action']
-			baseUrl = url.scheme + '://' + url.netloc + str(path.parents[1]).rstrip('/')
+			basePath = str(path.parents[1]).rstrip('/')
 			pageId = int(query['pageId'][0])
 			spaceKey = None
 			title = None
@@ -90,13 +90,16 @@ def main():
 		url = urllib.parse.urlsplit(urlstr)  # type: urllib.parse.SplitResult
 
 		username = url.username
-		baseUrl = urlstr.rstrip('/')
+		basePath = url.path.rstrip('/')
 		pageId = None
 		spaceKey = None
 		title = None
 
 	else:
 		raise Exception('No `{0}` or `{1}` in `{2}` section of YAML metadata block'.format(CONFLUENCE_PAGE_URL, CONFLUENCE_BASE_URL, CONFLUENCE))
+
+	baseUrlWithUsername = urllib.parse.urlunsplit((url.scheme, url.netloc,                    basePath, None, None))
+	baseUrl             = urllib.parse.urlunsplit((url.scheme, url.netloc.rpartition("@")[2], basePath, None, None))
 
 	newTitle = metadata.get('title') # type: Optional[str]
 	authors = metadata.get('author', []) # type: List[str]
@@ -154,7 +157,7 @@ def main():
 
 	# Update metadata.
 	confluenceMetadata.pop(CONFLUENCE_BASE_URL, None)
-	confluenceMetadata[CONFLUENCE_PAGE_URL] = baseUrl + info['_links']['webui']
+	confluenceMetadata[CONFLUENCE_PAGE_URL] = baseUrlWithUsername + info['_links']['webui']
 	confluenceMetadata[CONFLUENCE_PAGE_VERSION] = info['version']['number']
 
 	# Rewrite Pandoc markdown file with updated YAML metadata block.
