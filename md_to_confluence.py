@@ -57,7 +57,7 @@ def main():
 	else:
 		raise Exception('No YAML metadata block')
 	yaml_preserve_order()
-	metadata = yaml.load(metadata_content)
+	metadata = yaml.safe_load(metadata_content)
 
 	confluenceMetadata = metadata.get(CONFLUENCE) # type: Optional[dict]
 	if confluenceMetadata is None:
