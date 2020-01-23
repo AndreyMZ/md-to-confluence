@@ -18,6 +18,9 @@ import yaml
 
 from confluence import Confluence
 
+PROJECT_NAME = "md-to-confluence"
+PROJECT_URL = "https://github.com/AndreyMZ/md-to-confluence"
+
 CONFLUENCE = 'confluence'
 CONFLUENCE_USER_NAME = 'user-name'
 CONFLUENCE_BASE_URL = 'base-url'
@@ -122,9 +125,13 @@ def main():
 	if confluenceMetadata.get(CONFLUENCE_NOTE_AUTOGEN, False): # type: bool
 		note = textwrap.dedent("""\
 			<ac:structured-macro ac:name="info" ac:schema-version="1">
-			  <ac:rich-text-body><p>This page is generated automatically from <ac:link><ri:attachment ri:filename="{filename}"/></ac:link> using <a href="https://code.pp.plesk.ru/azelenchuk/confluence-poster">confluence-poster</a>.</p></ac:rich-text-body>
+			  <ac:rich-text-body><p>This page is generated automatically from <ac:link><ri:attachment ri:filename="{filename}"/></ac:link> using <a href="{project_url}">{project_name}</a>.</p></ac:rich-text-body>
 			</ac:structured-macro>
-		""").format(filename=html.escape(file.name))
+		""").format(
+			filename=html.escape(file.name),
+			project_name=html.escape(PROJECT_NAME),
+			project_url=html.escape(PROJECT_URL)
+		)
 		content = note + content
 
 	# Ask username and password.
