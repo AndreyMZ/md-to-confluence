@@ -4,6 +4,8 @@ import sys
 from typing import Tuple
 
 import keyring
+import keyring.errors
+
 
 def authenticate(service_name: str, default_username: str = None) -> Tuple[str, str]:
 	username = default_username if (default_username is not None) else getpass.getuser()
@@ -30,7 +32,7 @@ def authenticate(service_name: str, default_username: str = None) -> Tuple[str, 
 				keyring.set_password(service_name, username, line)
 			else:
 				print(str(keyring_exception))
-				sys.stdout.write('Passward was not saved. Press Enter to continue.')
+				sys.stdout.write("Password was not saved. Press Enter to continue.")
 				sys.stdout.flush()
 				sys.stdin.readline()
 		else:
@@ -47,4 +49,4 @@ def delete_password(service_name: str, username: str = None) -> None:
 	try:
 		keyring.delete_password(service_name, username)
 	except keyring.errors.PasswordDeleteError as ex:
-		pass
+		sys.stdout.write(f"Cannot delete password. {ex}")
