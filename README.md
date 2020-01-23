@@ -1,20 +1,36 @@
-# Requirements
+Requirements
+============
 
 - [Python 3](https://www.python.org/downloads/)
-- Python packages (use `pip install -r requirements.txt` or, if you have several versions of python on Windows, `py -3 -m pip install -r requirements.txt`):
-    - [keyring](http://pythonhosted.org/keyring/)
+- Python packages (run `pip install -r requirements.txt` or, if you have several versions of python on Windows, `py -3 -m pip install -r requirements.txt`):
+    - [keyring](https://pypi.org/project/keyring/)
     - [requests](https://requests.readthedocs.io/en/master/)
-    - [pyyaml](pyyaml.org/wiki/PyYAMLDocumentation)
-- [Pandoc](http://pandoc.org/installing.html) >= 2.1.3
+    - [pyyaml](https://pyyaml.org/wiki/PyYAMLDocumentation)
+- [Pandoc](https://pandoc.org/installing.html) >= 2.1.3
 
-# Usage
 
-## MD to Confluence
+Usage
+=====
+
+MD to CSF
+---------
+
+If you just want to convert a text from Pandoc's Markdown (MD) to Confluence Storage Format (CSF), then use [Pandoc](https://pandoc.org/) with the `csf.lua` [custom writer](https://pandoc.org/MANUAL.html#custom-writers) from this repository.
+
+Example:
+
+    pandoc --from "markdown+hard_line_breaks+lists_without_preceding_blankline+compact_definition_lists+smart+autolink_bare_uris" --to "md-to-confluence/csf.lua" example.md > example.csf
+
+
+MD to Confluence
+----------------
+
+This utility converts a text from Pandoc's Markdown (MD) to Confluence Storage Format (CSF) and posts it to a Confluence instance defined by the metadata block at the begining of the text.
 
     usage: md_to_confluence.py [-h] file
     
     positional arguments:
-      file        Pandoc markdown file path.
+      file        Pandoc's Markdown file path.
     
     optional arguments:
       -h, --help  show this help message and exit
@@ -66,6 +82,7 @@ Password is prompted in console. It is cached in the system keyring service.
 
 See examples in the `example/` directory.
 
+
 ### Example of Sublime Text build system config
 
 `Sublime Text 3\Packages\User\Post to Confluence.sublime-build`
@@ -73,7 +90,7 @@ See examples in the `example/` directory.
 ```json
 {
 	"selector": "text.html.markdown",
-	"shell_cmd": "start cmd /C \"py C:\\GIT\\confluence-poster\\md_to_confluence.py \"$file\" & pause\""
+	"shell_cmd": "start cmd /C \"py C:\\GIT\\md-to-confluence\\md_to_confluence.py \"$file\" & pause\""
 }
 ```
 
@@ -86,8 +103,8 @@ TOC is added if and only if at least one of `toc-*` is specified in the metadata
 
 #### Definition list
 
-Definition lists are not supported by Confluense Storage Format (CSF).
-The suggestion is here: https://jira.atlassian.com/browse/CONF-1322
+Definition lists are not supported by CSF.
+The feature suggestion is here: <https://jira.atlassian.com/browse/CONF-1322>. Vote for it.
 
 
 ### Extra syntax
@@ -213,7 +230,8 @@ You can use the following compatible CSS style for HTML output:
     </style>
 
 
-## Confluence poster
+Confluence poster
+-----------------
 
     confluence_poster.py --baseurl BASEURL [--user USER] ([--space SPACE] --title TITLE | --pageid PAGEID) [--new-title NEW_TITLE] ([--file FILE] | --text TEXT)
     confluence_poster.py --baseurl BASEURL [--user USER] ([--space SPACE] --new-title NEW_TITLE ([--file FILE] | --text TEXT)

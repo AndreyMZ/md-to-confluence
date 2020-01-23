@@ -29,7 +29,7 @@ CONFLUENCE_NOTE_AUTOGEN = 'note-autogen'
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("file", type=str,
-	                    help="Pandoc markdown file path.")
+	                    help="Pandoc's Markdown file path.")
 	args = parser.parse_args()
 
 	file = pathlib.Path(args.file)
@@ -111,7 +111,7 @@ def main():
 	if spaceKey is None:
 		spaceKey = '~' + username
 
-	# Convert Pandoc markdown file to xhtml using `pandoc` utility.
+	# Convert Pandoc's Markdown file to Confluence Storage Format (CSF) using `pandoc` utility.
 	cmd = ["pandoc",
 	       "--from=markdown+hard_line_breaks+lists_without_preceding_blankline+compact_definition_lists+smart+autolink_bare_uris",
 	       "--to", os.path.join(os.path.dirname(sys.argv[0]), "csf.lua"),
