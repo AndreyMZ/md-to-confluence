@@ -250,23 +250,30 @@ function Strikeout(s)
 end
 
 
-local function InternalLink(s, src, title, attr)
+local function innerLinkTags(s, attr)
 	local buf = Buffer:new()
-	buf:add('<ac:link ac:anchor="' .. escape(src:sub(2),true) .. '">')
-	if attr['content-title'] then
-		buf:add('  <ri:page ri:content-title="' .. escape(attr['content-title'],true) .. '" ri:space-key="' .. escape(attr['space-key'],true) .. '"/>')
+	local page  = attr['content-title']
+	local space = attr['space-key']
+	if page and space then
+		buf:add('  <ri:page ri:content-title="' .. escape(page,true) .. '"'
+				       .. ' ri:space-key="' .. escape(space,true) .. '"/>')
+	elseif page then
+		buf:add('  <ri:page ri:content-title="' .. escape(page,true) .. '"/>')
+	elseif space then
+		buf:add('  <ri:space ri:space-key="' .. escape(space,true) .. '"/>')
 	end
-	buf:add('  <ac:plain-text-link-body><![CDATA[' .. cdataEscape(s) .. ']]></ac:plain-text-link-body>')
-	buf:add('</ac:link>')
+	if s ~= "" then
+		buf:add('  <ac:link-body>' .. s .. '</ac:link-body>')
+	end
 	return buf:to_string()
 end
 
 function Link(s, src, title, attr)
 	if src:byte(1) == string.byte('#') then
-		return InternalLink(s, src, title, attr)
-	end
-	
-	if title and title ~= '' then
+		return '<ac:link ac:anchor="' .. escape(src:sub(2),true) .. '">\n' .. innerLinkTags(s, attr) .. '\n</ac:link>'
+	elseif attr['content-title'] or attr['space-key'] then
+		return '<ac:link>\n' .. innerLinkTags(s, attr) .. '\n</ac:link>'
+	elseif title and title ~= "" then
 		return '<a href="' .. escape(src,true) .. '" title="' .. escape(title,true) .. '">' .. s .. '</a>'
 	else
 		return '<a href="' .. escape(src,true) .. '">' .. s .. '</a>'

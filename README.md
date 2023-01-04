@@ -107,11 +107,17 @@ The feature suggestion is here: <https://jira.atlassian.com/browse/CONF-1322>. V
 
 ### Extra syntax
 
-#### Image link type
+#### Links to Confluence pages
 
-CSF supports three types of image links:
+Example:
 
-1. `url`
+    [FOO](){content-title="My Page"}
+    [BAR](){space-key="OTH"}
+    [BAZ](){space-key="OTH" content-title="Other's Page"}
+
+    [](){content-title="My Page"}
+    [](){space-key="OTHER"}
+    [](){space-key="OTHER" content-title="Other's Page"}
 
         ![Fig. 1](http://example.com/fig-1.png)
 
