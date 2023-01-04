@@ -144,16 +144,19 @@ local supported_langs = {
 local notes = {}
 
 local function toc(metadata)
-	local buf = Buffer:new()
-
+	if metadata == true then
+		metadata = {}
+	end
+	local title = metadata['title']
 	local params = {}
-	params['minLevel'] = metadata['toc-min-level']
-	params['maxLevel'] = metadata['toc-depth']
+	params['minLevel'] = metadata['min-level']
+	params['maxLevel'] = metadata['max-level']
 
-	if metadata['toc-title'] then
-		local n = (params['minLevel'] or '1')
-		buf:add('<h' .. n .. '>' .. metadata['toc-title'] .. '</h' .. n .. '>')
-		params['exclude'] = regexEscape(metadata['toc-title'])
+	local buf = Buffer:new()
+	if title then
+		local n = params['minLevel'] and tonumber(params['minLevel']) or 1
+		buf:add('<h' .. n .. '>' .. escape(title) .. '</h' .. n .. '>')
+		params['exclude'] = regexEscape(title)
 	end
 	buf:add('<p>')
 	buf:add('  <ac:structured-macro ac:name="toc">')
@@ -162,7 +165,6 @@ local function toc(metadata)
 	end
 	buf:add('  </ac:structured-macro>')
 	buf:add('</p>')
-
 	return buf:to_string()
 end
 
@@ -174,8 +176,8 @@ end
 -- usual.
 function Doc(body, metadata, variables)
 	local buf = Buffer:new()
-	if metadata['toc-title'] or metadata['toc-min-level'] or metadata['toc-depth'] then
-		buf:add(toc(metadata))
+	if metadata['toc'] then
+		buf:add(toc(metadata['toc']))
 	end
 	buf:add(body)
 	if #notes > 0 then

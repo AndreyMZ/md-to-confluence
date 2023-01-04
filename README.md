@@ -67,11 +67,13 @@ YAML metadata used:
 
     -  `note-autogen` - add to the top of the page an information panel which says that this page is automatically generated. Boolean. Default: false.
 
-- `toc-title` - title of TOC (Table of Content). Default: no title.
+- `toc` - Table of Content (TOC). Boolean or object. Default: no TOC. 
 
-- `toc-min-level` - minimum header level to include in TOC.
+    - `title` - the title of the TOC. String. Default: no title.
 
-- `toc-depth` - maximum header level to include in TOC.
+    - `min-level` - the minimum heading level to report in the TOC. Integer. Optional.
+
+    - `max-level` - the maximum heading level to report in the TOC. Integer. Optional.
 
 If username is not specified as part of the URL, it is guessed from first `author` (e.g.: John Smith -> jsmith).
 If `author` is not specified, default username is from the environment or password database.
@@ -96,10 +98,6 @@ See examples in the `example/` directory.
 
 
 ### Limitations
-
-#### Table of Content (TOC)
-
-TOC is added if and only if at least one of `toc-*` is specified in the metadata.
 
 #### Definition list
 
