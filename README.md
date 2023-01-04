@@ -172,7 +172,7 @@ or
 
 #### Status Macro
 
-Confluence Documentation: https://confluence.atlassian.com/doc/status-macro-223222355.html
+Confluence Documentation: <https://confluence.atlassian.com/doc/status-macro-223222355.html>
 
 Example:
 
@@ -226,6 +226,30 @@ You can use the following compatible CSS style for HTML output:
         .status.subtle.grey   { color: #333333; background-color: #ffffff; border-color: #cccccc; }
         .status.subtle.blue   { color: #4a6785; background-color: #ffffff; border-color: #e4e8ed; }
     </style>
+
+#### Info, Tip, Note, and Warning Macros
+
+Confluence Documentation: <https://confluence.atlassian.com/doc/info-tip-note-and-warning-macros-51872369.html>
+
+Pandoc documentation: <https://pandoc.org/MANUAL.html#extension-fenced_divs>
+
+Example:
+
+    ::: {.info title="My Info"} :::
+    This is an information with a title.
+    :::::::::::::::::::::::::::::::
+    
+    ::: {.tip} :::
+    This is a tip.
+    ::::::::::::::
+    
+    ::: {.note} :::
+    This is a note.
+    :::::::::::::::
+    
+    ::: {.warning} :::
+    This is a warning.
+    ::::::::::::::::::
 
 
 Confluence poster

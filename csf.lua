@@ -76,6 +76,15 @@ local function contains(table, value)
 	return false
 end
 
+function table.firstMatch(table, values)
+	for _, v in ipairs(table) do
+		if contains(values, v) then
+			return v
+		end
+	end
+	return nil
+end
+
 function string.split(str)
 	local words = {}
 	for word in str:gmatch("%w+") do table.insert(words, word) end
@@ -101,12 +110,12 @@ local supported_colors = {
 	'blue'
 }
 
-local function getColorFromClasses(classes)
-	for _, class in ipairs(classes) do
-		if contains(supported_colors, class) then return class end
-	end
-	return nil
-end
+local supported_info_types = {
+	'info',    -- grey
+	'tip',     -- green
+	'note',    -- yellow
+	'warning', -- red
+}
 
 -- https://confluence.atlassian.com/doc/code-block-macro-139390.html#CodeBlockMacro-Parameters
 local supported_langs = {
@@ -366,9 +375,30 @@ function RawBlock(lang, tagStr)
 	end
 end
 
--- Native Div blocks: http://pandoc.org/MANUAL.html#extension-native_divs
+
+local function InfoMacro(type, s, attr)
+	local buf = Buffer:new()
+	buf:add('<ac:structured-macro ac:name="' .. type .. '">')
+	if attr['title'] ~= nil then
+		buf:add('  <ac:parameter ac:name="title">' .. attr['title'] .. '</ac:parameter>')
+	end
+	buf:add('  <ac:rich-text-body>')
+	buf:add('    ' .. s)
+	buf:add('  </ac:rich-text-body>')
+	buf:add('</ac:structured-macro>')
+	return buf:to_string()
+end
+
+
+-- Native Div blocks: https://pandoc.org/MANUAL.html#extension-native_divs
+-- Fenced Div blocks: https://pandoc.org/MANUAL.html#extension-fenced_divs
 function Div(s, attr)
-	return "<div" .. attributes(attr) .. ">" .. s .. "</div>"
+	local info_type = table.firstMatch(attr['class']:split(), supported_info_types)
+	if info_type ~= nil then
+		return InfoMacro(info_type, s, attr)
+	else
+		return "<div" .. attributes(attr) .. ">" .. s .. "</div>"
+	end
 end
 
 
@@ -376,7 +406,7 @@ local function StatusMacro(s, attr)
 	local buf = Buffer:new()
 
 	local classes = attr['class']:split()
-	local color = getColorFromClasses(classes)
+	local color = table.firstMatch(classes, supported_colors)
 	local subtle = contains(classes, "subtle")
 
 	buf:add('<ac:structured-macro ac:name="status">')
