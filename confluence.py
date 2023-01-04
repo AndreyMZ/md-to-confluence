@@ -7,7 +7,7 @@ import sys
 import urllib.parse
 from enum import Enum
 from pathlib import Path
-from typing import BinaryIO, List, Optional, Tuple, Dict, Union, TextIO
+from typing import BinaryIO, Dict, List, Optional, TextIO, Tuple, Union
 
 import requests
 
