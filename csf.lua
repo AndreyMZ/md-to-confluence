@@ -398,18 +398,8 @@ function Div(s, attr)
 	return "<div" .. attributes(attr) .. ">" .. s .. "</div>"
 end
 
--- Native Span blocks: http://pandoc.org/MANUAL.html#extension-native_spans
-function Span(s, attr)
-	local classes = attr['class']:split()
-	if contains(classes, 'status') then
-		return StatusMacro(s, attr)
-	else
-		return "<span" .. attributes(attr) .. ">" .. s .. "</span>"
-	end
-end
 
-
-function StatusMacro(s, attr)
+local function StatusMacro(s, attr)
 	local buffer = {}
 	local function add(s)
 		table.insert(buffer, s)
@@ -427,6 +417,17 @@ function StatusMacro(s, attr)
 	add('  <ac:parameter ac:name="subtle">' .. tostring(subtle) .. '</ac:parameter>')
 	add('</ac:structured-macro>')
 	return table.concat(buffer, '\n')
+end
+
+
+-- Native Span blocks: http://pandoc.org/MANUAL.html#extension-native_spans
+function Span(s, attr)
+	local classes = attr['class']:split()
+	if contains(classes, 'status') then
+		return StatusMacro(s, attr)
+	else
+		return "<span" .. attributes(attr) .. ">" .. s .. "</span>"
+	end
 end
 
 
@@ -485,7 +486,7 @@ end
 
 -- Convert pandoc alignment to something HTML can use.
 -- align is AlignLeft, AlignRight, AlignCenter, or AlignDefault.
-function html_align(align)
+local function html_align(align)
 	if align == 'AlignLeft' then
 		return 'left'
 	elseif align == 'AlignRight' then
