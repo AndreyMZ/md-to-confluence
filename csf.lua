@@ -42,6 +42,19 @@ end
 
 --- Helper functions ---
 
+local Buffer = {}
+function Buffer:new()
+	local result = { buffer = {} }
+    setmetatable(result, { __index = self })
+    return result
+end
+function Buffer:add(line)
+	table.insert(self.buffer, line)
+end
+function Buffer:to_string()
+	return table.concat(self.buffer, '\n')
+end
+
 -- Helper function to convert an attributes table into
 -- a string that can be put into HTML tags.
 local function attributes(attr)
@@ -157,10 +170,7 @@ local supported_langs = {
 local notes = {}
 
 local function toc(metadata)
-	local buffer = {}
-	local function add(s)
-		table.insert(buffer, s)
-	end
+	local buf = Buffer:new()
 
 	local params = {}
 	params['minLevel'] = metadata['toc-min-level']
@@ -168,18 +178,18 @@ local function toc(metadata)
 
 	if metadata['toc-title'] then
 		local n = (params['minLevel'] or '1')
-		add('<h' .. n .. '>' .. metadata['toc-title'] .. '</h' .. n .. '>')
+		buf:add('<h' .. n .. '>' .. metadata['toc-title'] .. '</h' .. n .. '>')
 		params['exclude'] = regexEscape(metadata['toc-title'])
 	end
-	add('<p>')
-	add('  <ac:structured-macro ac:name="toc">')
+	buf:add('<p>')
+	buf:add('  <ac:structured-macro ac:name="toc">')
 	for key,val in pairs(params) do
-		add('    <ac:parameter ac:name="' .. escape(key,true) .. '">' .. escape(val) .. '</ac:parameter>')
+		buf:add('    <ac:parameter ac:name="' .. escape(key,true) .. '">' .. escape(val) .. '</ac:parameter>')
 	end
-	add('  </ac:structured-macro>')
-	add('</p>')
+	buf:add('  </ac:structured-macro>')
+	buf:add('</p>')
 
-	return table.concat(buffer, '\n')
+	return buf:to_string()
 end
 
 -- This function is called once for the whole document. Parameters:
@@ -189,22 +199,19 @@ end
 -- to pandoc, and pandoc will add do the template processing as
 -- usual.
 function Doc(body, metadata, variables)
-	local buffer = {}
-	local function add(s)
-		table.insert(buffer, s)
-	end
+	local buf = Buffer:new()
 	if metadata['toc-title'] or metadata['toc-min-level'] or metadata['toc-depth'] then
-		add(toc(metadata))
+		buf:add(toc(metadata))
 	end
-	add(body)
+	buf:add(body)
 	if #notes > 0 then
-		add('<ol class="footnotes">')
+		buf:add('<ol class="footnotes">')
 		for _,note in pairs(notes) do
-			add(note)
+			buf:add(note)
 		end
-		add('</ol>')
+		buf:add('</ol>')
 	end
-	return table.concat(buffer,'\n') .. '\n'
+	return buf:to_string() .. '\n'
 end
 
 -- The functions that follow render corresponding pandoc elements.
@@ -259,17 +266,14 @@ end
 
 
 local function InternalLink(s, src, tit, attr)
-	local buffer = {}
-	local function add(s)
-		table.insert(buffer, s)
-	end
-	add('<ac:link ac:anchor="' .. escape(src:sub(2),true) .. '">')
+	local buf = Buffer:new()
+	buf:add('<ac:link ac:anchor="' .. escape(src:sub(2),true) .. '">')
 	if attr['content-title'] then
-		add('  <ri:page ri:content-title="' .. escape(attr['content-title'],true) .. '" ri:space-key="' .. escape(attr['space-key'],true) .. '"/>')
+		buf:add('  <ri:page ri:content-title="' .. escape(attr['content-title'],true) .. '" ri:space-key="' .. escape(attr['space-key'],true) .. '"/>')
 	end
-	add('  <ac:plain-text-link-body><![CDATA[' .. cdataEscape(s) .. ']]></ac:plain-text-link-body>')
-	add('</ac:link>')
-	return table.concat(buffer, '\n')
+	buf:add('  <ac:plain-text-link-body><![CDATA[' .. cdataEscape(s) .. ']]></ac:plain-text-link-body>')
+	buf:add('</ac:link>')
+	return buf:to_string()
 end
 
 function Link(s, src, tit, attr)
@@ -329,17 +333,14 @@ function CodeBlock(s, attr)
 		params['collapse'] = 'true'
 	end
 
-	local buffer = {}
-	local function add(s)
-		table.insert(buffer, s)
-	end
-	add('<ac:structured-macro ac:name="code">')
+	local buf = Buffer:new()
+	buf:add('<ac:structured-macro ac:name="code">')
 	for key, val in pairs(params) do
-		add('  <ac:parameter ac:name="' .. escape(key,true) .. '">' .. escape(val) .. '</ac:parameter>')
+		buf:add('  <ac:parameter ac:name="' .. escape(key,true) .. '">' .. escape(val) .. '</ac:parameter>')
 	end
-	add('  <ac:plain-text-body><![CDATA[' .. cdataEscape(s) .. ']]></ac:plain-text-body>')
-	add('</ac:structured-macro>')
-	return table.concat(buffer, '\n')
+	buf:add('  <ac:plain-text-body><![CDATA[' .. cdataEscape(s) .. ']]></ac:plain-text-body>')
+	buf:add('</ac:structured-macro>')
+	return buf:to_string()
 end
 
 function InlineMath(s)
@@ -400,23 +401,20 @@ end
 
 
 local function StatusMacro(s, attr)
-	local buffer = {}
-	local function add(s)
-		table.insert(buffer, s)
-	end
+	local buf = Buffer:new()
 
 	local classes = attr['class']:split()
 	local color = getColorFromClasses(classes)
 	local subtle = contains(classes, "subtle")
 
-	add('<ac:structured-macro ac:name="status">')
+	buf:add('<ac:structured-macro ac:name="status">')
 	if color then
-		add('  <ac:parameter ac:name="colour">' .. color .. '</ac:parameter>')
+		buf:add('  <ac:parameter ac:name="colour">' .. color .. '</ac:parameter>')
 	end
-	add('  <ac:parameter ac:name="title">' .. s .. '</ac:parameter>')
-	add('  <ac:parameter ac:name="subtle">' .. tostring(subtle) .. '</ac:parameter>')
-	add('</ac:structured-macro>')
-	return table.concat(buffer, '\n')
+	buf:add('  <ac:parameter ac:name="title">' .. s .. '</ac:parameter>')
+	buf:add('  <ac:parameter ac:name="subtle">' .. tostring(subtle) .. '</ac:parameter>')
+	buf:add('</ac:structured-macro>')
+	return buf:to_string()
 end
 
 
@@ -457,31 +455,30 @@ function HorizontalRule()
 end
 
 function BulletList(items)
-	local buffer = {}
+	local buf = Buffer:new()
 	for _, item in pairs(items) do
-		table.insert(buffer, "<li>" .. item .. "</li>")
+		buf:add("<li>" .. item .. "</li>")
 	end
-	return "<ul>\n" .. table.concat(buffer, "\n") .. "\n</ul>"
+	return "<ul>\n" .. buf:to_string() .. "\n</ul>"
 end
 
 function OrderedList(items)
-	local buffer = {}
+	local buf = Buffer:new()
 	for _, item in pairs(items) do
-		table.insert(buffer, "<li>" .. item .. "</li>")
+		buf:add("<li>" .. item .. "</li>")
 	end
-	return "<ol>\n" .. table.concat(buffer, "\n") .. "\n</ol>"
+	return "<ol>\n" .. buf:to_string() .. "\n</ol>"
 end
 
 -- Revisit association list STackValue instance.
 function DefinitionList(items)
-	local buffer = {}
+	local buf = Buffer:new()
 	for _,item in pairs(items) do
 		for k, v in pairs(item) do
-			table.insert(buffer,"<dt>" .. k .. "</dt>\n<dd>" ..
-					table.concat(v,"</dd>\n<dd>") .. "</dd>")
+			buf:add("<dt>" .. k .. "</dt>\n<dd>" .. table.concat(v, "</dd>\n<dd>") .. "</dd>")
 		end
 	end
-	return "<dl>\n" .. table.concat(buffer, "\n") .. "\n</dl>"
+	return "<dl>\n" .. buf:to_string() .. "\n</dl>"
 end
 
 -- Convert pandoc alignment to something HTML can use.
@@ -503,10 +500,7 @@ end
 -- widths is an array of floats, headers is an array of
 -- strings, rows is an array of arrays of strings.
 function Table(caption, aligns, widths, headers, rows)
-	local buffer = {}
-	local function add(s)
-		table.insert(buffer, s)
-	end
+	local buf = Buffer:new()
 
 	local function addCell(tag, i, c)
 		local attrs = {}
@@ -530,14 +524,14 @@ function Table(caption, aligns, widths, headers, rows)
 			text = c
 		end
 
-		add('<' .. tag .. attributes(attrs) .. '>' .. text .. '</' .. tag .. '>')
+		buf:add('<' .. tag .. attributes(attrs) .. '>' .. text .. '</' .. tag .. '>')
 	end
 
 	if caption and caption ~= "" then
-		add("<p>" .. caption .. "</p>") -- <caption/> is not supported in CSF.
+		buf:add("<p>" .. caption .. "</p>") -- <caption/> is not supported in CSF.
 	end
-	add("<table>")
-	add("<tbody>")
+	buf:add("<table>")
+	buf:add("<tbody>")
 --	if widths and widths[1] ~= 0 then
 --		add('<colgroup>')
 --		for _, w in pairs(widths) do
@@ -553,22 +547,22 @@ function Table(caption, aligns, widths, headers, rows)
 		end
 	end
 	if not empty_header then
-		add('<tr>')
+		buf:add('<tr>')
 		for i,c in pairs(headers) do
 			addCell('th', i, c)
 		end
-		add('</tr>')
+		buf:add('</tr>')
 	end
 	for _, row in pairs(rows) do
-		add('<tr>')
+		buf:add('<tr>')
 		for i,c in pairs(row) do
 			addCell('td', i, c)
 		end
-		add('</tr>')
+		buf:add('</tr>')
 	end
-	add("</tbody>")
-	add('</table>')
-	return table.concat(buffer,'\n')
+	buf:add("</tbody>")
+	buf:add('</table>')
+	return buf:to_string()
 end
 
 function DoubleQuoted(s)
