@@ -28,10 +28,10 @@ MD to Confluence
 This utility converts a text from Pandoc's Markdown (MD) to Confluence Storage Format (CSF) and posts it to a Confluence instance defined by the metadata block at the begining of the text.
 
     usage: md_to_confluence.py [-h] file
-    
+
     positional arguments:
       file        Pandoc's Markdown file path.
-    
+
     optional arguments:
       -h, --help  show this help message and exit
 
@@ -46,26 +46,26 @@ YAML metadata used:
 - `confluence`
 
     -  `page-url` is required to edit existing page.
-    
+
         Username and port are optional.
-    
+
         Examples:
-        
+
         - `https://jsmith@example.com:443/confluence/display/~jsmith/My+existing+page`
         - `https://jsmith@example.com:443/confluence/pages/viewpage.action?pageId=12345`
-    
+
     -  `base-url` is required to create new page.
-    
+
         Username and port are optional.
-    
+
         Examples:
 
         - `https://confluence.example.com`
         - `https://jsmith@example.com:443/confluence`
-         
+
     -  `page-version` is not required.
-	
-	-  `note-autogen` - add to the top of the page an information panel which says that this page is automatically generated. Boolean. Default: false.
+
+    -  `note-autogen` - add to the top of the page an information panel which says that this page is automatically generated. Boolean. Default: false.
 
 - `toc-title` - title of TOC (Table of Content). Default: no title.
 
@@ -89,8 +89,8 @@ See examples in the `example/` directory.
 
 ```json
 {
-	"selector": "text.html.markdown",
-	"shell_cmd": "start cmd /C \"py C:\\GIT\\md-to-confluence\\md_to_confluence.py \"$file\" & pause\""
+    "selector": "text.html.markdown",
+    "shell_cmd": "start cmd /C \"py C:\\GIT\\md-to-confluence\\md_to_confluence.py \"$file\" & pause\""
 }
 ```
 
@@ -115,16 +115,16 @@ CSF supports three types of image links:
 
 1. `url`
 
-		![Fig. 1](http://example.com/fig-1.png)
+        ![Fig. 1](http://example.com/fig-1.png)
 
 2. `attachment` (from this page)
 
-		![Fig. 2](fig-2.png){type="attachment"}
+        ![Fig. 2](fig-2.png){type="attachment"}
 
 3. `page` (attachment from other page)
 
-		![Fig. 3](fig-3.png){type="page", space-key="MYKEY", content-title="My Page Title"}
-	
+        ![Fig. 3](fig-3.png){type="page", space-key="MYKEY", content-title="My Page Title"}
+
 #### Code block attributes
 
 CSF supports the following [code block attibutes](http://pandoc.org/MANUAL.html#extension-fenced_code_attributes):
@@ -154,23 +154,23 @@ CSF supports the following colors for table cells:
 
 Example:
 
-	| color                 |
-	|-----------------------|
-	| [RED FOO]{.red}       |
-	| [YELLOW BAR]{.yellow} |
-	| [GREEN BAZ]{.green}   |
-	| [GREY QWE]{.grey}     |
-	| [BLUE ASD]{.blue}     |
+    | color                 |
+    |-----------------------|
+    | [RED FOO]{.red}       |
+    | [YELLOW BAR]{.yellow} |
+    | [GREEN BAZ]{.green}   |
+    | [GREY QWE]{.grey}     |
+    | [BLUE ASD]{.blue}     |
 
 or
 
-	| color                                  |
-	|----------------------------------------|
-	| <span class="red">RED FOO</span>       |
-	| <span class="yellow">YELLOW BAR</span> |
-	| <span class="green">GREEN BAZ</span>   |
-	| <span class="grey">GREY QWE</span>     |
-	| <span class="blue">BLUE ASD</span>     |
+    | color                                  |
+    |----------------------------------------|
+    | <span class="red">RED FOO</span>       |
+    | <span class="yellow">YELLOW BAR</span> |
+    | <span class="green">GREEN BAZ</span>   |
+    | <span class="grey">GREY QWE</span>     |
+    | <span class="blue">BLUE ASD</span>     |
 
 #### Status Macro
 
@@ -236,7 +236,7 @@ Confluence poster
     confluence_poster.py --baseurl BASEURL [--user USER] ([--space SPACE] --title TITLE | --pageid PAGEID) [--new-title NEW_TITLE] ([--file FILE] | --text TEXT)
     confluence_poster.py --baseurl BASEURL [--user USER] ([--space SPACE] --new-title NEW_TITLE ([--file FILE] | --text TEXT)
     confluence_poster.py (-h | --help)
-    
+
     optional arguments:
       -h, --help            show this help message and exit
       --baseurl BASEURL     Conflunce base URL. Format:
