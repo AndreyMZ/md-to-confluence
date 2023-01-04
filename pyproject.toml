@@ -1,0 +1,25 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "md-to-confluence"
+version = "0.1.0"
+description = "Converter from Markdown to Confluence"
+authors = ["Andrey Zelenchuk <andrey.zelenchuk@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://gitlab.com/AndreyMZ/md-to-confluence"
+packages = [{include = "md_to_confluence.py"}]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://gitlab.com/AndreyMZ/md-to-confluence/-/issues"
+
+[tool.poetry.scripts]
+"md-to-confluence" = "md_to_confluence:main"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+keyring = "^23.13.1"
+pyyaml = "^6.0"
+requests = "^2.28.1"
