@@ -91,32 +91,6 @@ function string.ends(str, theEnd)
 end
 
 
---- For debugging ---
-
--- Usage:
---     function MyFunc1(x, y, ...)
---         printargs('MyFunc1', args, x, y)
---     end
--- or
---     function MyFunc2(x, y)
---         printargs('MyFunc2', {}, x, y)
---     end
-local function printargs(func, restargs, ...)
-	local buf = {}
-	for _,v in ipairs(arg) do
-		if type(v) == "table" then
-			table.insert(buf, "'" .. attributes(v) .. "'")
-		else
-			table.insert(buf, "'" .. tostring(v) .. "'")
-		end
-	end
-	for _,v in ipairs(restargs) do
-		table.insert(buf, "'" .. tostring(v) .. "'")
-	end
-	print(func .. '(' .. table.concat(buf, ', ') .. ')')
-end
-
-
 --- Global variables
 
 local supported_colors = {
