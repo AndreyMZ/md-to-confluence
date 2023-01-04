@@ -1,4 +1,3 @@
-#! python3
 import getpass
 import sys
 from typing import Tuple

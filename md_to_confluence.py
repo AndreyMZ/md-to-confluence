@@ -1,4 +1,3 @@
-#! python3
 import argparse
 import getpass
 import html
