@@ -21,9 +21,9 @@ local function escape(s, in_attribute)
 				return '&gt;'
 			elseif x == '&' then
 				return '&amp;'
-			elseif x == '"' then
+			elseif x == '"' and in_attribute then
 				return '&quot;'
-			elseif x == "'" then
+			elseif x == "'" and in_attribute then
 				return '&#39;'
 			else
 				return x
