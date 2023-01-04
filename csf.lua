@@ -239,7 +239,7 @@ function Strikeout(s)
 end
 
 
-local function InternalLink(s, src, tit, attr)
+local function InternalLink(s, src, title, attr)
 	local buf = Buffer:new()
 	buf:add('<ac:link ac:anchor="' .. escape(src:sub(2),true) .. '">')
 	if attr['content-title'] then
@@ -250,13 +250,13 @@ local function InternalLink(s, src, tit, attr)
 	return buf:to_string()
 end
 
-function Link(s, src, tit, attr)
+function Link(s, src, title, attr)
 	if src:byte(1) == string.byte('#') then
-		return InternalLink(s, src, tit, attr)
+		return InternalLink(s, src, title, attr)
 	end
 	
-	if tit and tit ~= '' then
-		return '<a href="' .. escape(src,true) .. '" title="' .. escape(tit,true) .. '">' .. s .. '</a>'
+	if title and title ~= '' then
+		return '<a href="' .. escape(src,true) .. '" title="' .. escape(title,true) .. '">' .. s .. '</a>'
 	else
 		return '<a href="' .. escape(src,true) .. '">' .. s .. '</a>'
 	end
@@ -273,17 +273,15 @@ local function innerImageTag(src, attr)
 	end
 end
 
-function Image(s, src, tit, attr)
-	return '<ac:image ac:alt="' .. s .. '">\
-  ' .. innerImageTag(src, attr) .. '\
-</ac:image>'
+function Image(s, src, title, attr)
+	return '<ac:image ac:alt="' .. s .. '">' .. innerImageTag(src, attr) .. '</ac:image>'
 end
 
-function CaptionedImage(src, tit, caption, attr)
-	return '<ac:image ac:align="center" ac:border="true" ac:title="' .. escape(caption,true) .. '">\
-  ' .. innerImageTag(src, attr) .. '\
-</ac:image>\
-<p style="text-align: center;">' .. escape(caption) .. '</p>'
+function CaptionedImage(src, title, caption, attr)
+	return '<ac:image ac:align="center" ac:border="true" ac:title="' .. escape(caption,true) .. '">'
+			.. innerImageTag(src, attr)
+			.. '</ac:image>'
+			.. '<p style="text-align: center;">' .. escape(caption) .. '</p>'
 end
 
 
@@ -333,8 +331,7 @@ function Note(s)
 	-- add a list item with the note to the note table.
 	table.insert(notes, '<li id="fn' .. num .. '">' .. s .. '</li>')
 	-- return the footnote reference, linked to the note.
-	return '<a id="fnref' .. num .. '" href="#fn' .. num ..
-			'"><sup>' .. num .. '</sup></a>'
+	return '<a id="fnref' .. num .. '" href="#fn' .. num .. '"><sup>' .. num .. '</sup></a>'
 end
 
 function Cite(s, cs)
@@ -342,8 +339,7 @@ function Cite(s, cs)
 	for _,cit in ipairs(cs) do
 		table.insert(ids, cit.citationId)
 	end
-	return "<span class=\"cite\" data-citation-ids=\"" .. table.concat(ids, ",") ..
-			"\">" .. s .. "</span>"
+	return '<span class="cite" data-citation-ids="' .. table.concat(ids, ",") .. '">' .. s .. '</span>'
 end
 
 function Plain(s)
