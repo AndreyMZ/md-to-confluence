@@ -250,10 +250,14 @@ function Strikeout(s)
 end
 
 
-local function innerLinkTags(s, attr)
+local function innerLinkTags(s, src, attr)
 	local buf = Buffer:new()
+	local attachment = contains(attr['class']:split(), 'attachment')
 	local page  = attr['content-title']
 	local space = attr['space-key']
+	if attachment then
+		buf:add('  <ri:attachment ri:filename="' .. escape(src,true) .. '">')
+	end
 	if page and space then
 		buf:add('  <ri:page ri:content-title="' .. escape(page,true) .. '"'
 				       .. ' ri:space-key="' .. escape(space,true) .. '"/>')
@@ -262,7 +266,10 @@ local function innerLinkTags(s, attr)
 	elseif space then
 		buf:add('  <ri:space ri:space-key="' .. escape(space,true) .. '"/>')
 	end
-	if s ~= "" then
+	if attachment then
+		buf:add('  </ri:attachment>')
+	end
+	if s ~= nil and s ~= "" then
 		buf:add('  <ac:link-body>' .. s .. '</ac:link-body>')
 	end
 	return buf:to_string()
@@ -270,9 +277,9 @@ end
 
 function Link(s, src, title, attr)
 	if src:byte(1) == string.byte('#') then
-		return '<ac:link ac:anchor="' .. escape(src:sub(2),true) .. '">\n' .. innerLinkTags(s, attr) .. '\n</ac:link>'
-	elseif attr['content-title'] or attr['space-key'] then
-		return '<ac:link>\n' .. innerLinkTags(s, attr) .. '\n</ac:link>'
+		return '<ac:link ac:anchor="' .. escape(src:sub(2),true) .. '">\n' .. innerLinkTags(s, src, attr) .. '\n</ac:link>'
+	elseif #attr > 2 or attr['class'] ~= "" then
+		return '<ac:link>\n' .. innerLinkTags(s, src, attr) .. '\n</ac:link>'
 	elseif title and title ~= "" then
 		return '<a href="' .. escape(src,true) .. '" title="' .. escape(title,true) .. '">' .. s .. '</a>'
 	else
@@ -282,17 +289,15 @@ end
 
 
 local function innerImageTag(src, attr)
-	if attr['type'] == 'attachment' then
-		return '<ri:attachment ri:filename="' .. escape(src,true) .. '"/>'
-	elseif attr['type'] == 'page' then
-		return '<ri:page ri:content-title="' .. escape(attr['content-title'],true) .. '" ri:space-key="' .. escape(attr['space-key'],true) .. '"/>'
-	else -- if attr['type'] == 'url' then
-		return '<ri:url ri:value="' .. escape(src,true) .. '"/>'
+	if #attr > 2 or attr['class'] ~= "" then
+		return innerLinkTags(nil, src, attr)
+	else
+		return '  <ri:url ri:value="' .. escape(src,true) .. '"/>'
 	end
 end
 
 function Image(s, src, title, attr)
-	return '<ac:image ac:alt="' .. s .. '">' .. innerImageTag(src, attr) .. '</ac:image>'
+	return '<ac:image ac:alt="' .. s .. '">\n' .. innerImageTag(src, attr) .. '\n</ac:image>'
 end
 
 function CaptionedImage(src, title, caption, attr)

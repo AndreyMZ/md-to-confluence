@@ -119,15 +119,17 @@ Example:
     [](){space-key="OTHER"}
     [](){space-key="OTHER" content-title="Other's Page"}
 
-        ![Fig. 1](http://example.com/fig-1.png)
+#### Links to (and images from) attachments
 
-2. `attachment` (from this page)
+Example:
 
-        ![Fig. 2](fig-2.png){type="attachment"}
+    [](file-1.txt){.attachment}
+    [](file-2.txt){.attachment content-title="My Page"}
+    [](file-3.txt){.attachment space-key="OTH" content-title="Other's Page"}
 
-3. `page` (attachment from other page)
-
-        ![Fig. 3](fig-3.png){type="page", space-key="MYKEY", content-title="My Page Title"}
+    ![Fig. 1](fig-1.png){.attachment}
+    ![Fig. 2](fig-2.png){.attachment content-title="My Page"}
+    ![Fig. 3](fig-3.png){.attachment space-key="OTH" content-title="Other's Page"}
 
 #### Code block attributes
 
