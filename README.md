@@ -19,7 +19,7 @@ If you just want to convert a text from Pandoc's Markdown (MD) to Confluence Sto
 
 Example:
 
-    pandoc --from "markdown+hard_line_breaks+lists_without_preceding_blankline+compact_definition_lists+smart+autolink_bare_uris" --to "md-to-confluence/csf.lua" example.md > example.csf
+    pandoc --from "markdown+hard_line_breaks+lists_without_preceding_blankline+smart+autolink_bare_uris" --to "md-to-confluence/csf.lua" example.md > example.csf
 
 
 MD to Confluence
