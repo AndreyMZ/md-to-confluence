@@ -81,6 +81,12 @@ def main():
 			pageId = int(query['pageId'][0])
 			spaceKey = None
 			title = None
+		elif plen >= 6 and path.parts[plen-5] == 'spaces' and path.parts[plen-3] == 'pages': # e.g. ['/wiki', '']
+			# E.g., https://webpros.atlassian.net/wiki/spaces/~jsmith/pages/6294274211/Test+page
+			basePath = str(path.parents[4]).rstrip('/')
+			pageId = int(path.parts[plen-2])
+			spaceKey = urllib.parse.unquote_plus(path.parts[plen-4])
+			title = urllib.parse.unquote_plus(path.parts[plen-1])
 		else:
 			raise Exception('Unknown Confluence page URL format: {0}'.format(urlstr))
 
