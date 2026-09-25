@@ -107,7 +107,7 @@ See examples in the `example/` directory.
 ```json
 {
     "selector": "text.html.markdown",
-    "shell_cmd": "start cmd /C \"py C:\\GIT\\md-to-confluence\\md_to_confluence.py \"$file\" & pause\""
+    "shell_cmd": "start cmd /C \"md-to-confluence \"$file\" & pause\""
 }
 ```
 
@@ -278,9 +278,9 @@ Example:
 Confluence poster
 -----------------
 
-    confluence_poster.py --baseurl BASEURL [--user USER] ([--space SPACE] --title TITLE | --pageid PAGEID) [--new-title NEW_TITLE] ([--file FILE] | --text TEXT)
-    confluence_poster.py --baseurl BASEURL [--user USER] ([--space SPACE] --new-title NEW_TITLE ([--file FILE] | --text TEXT)
-    confluence_poster.py (-h | --help)
+    confluence-poster --baseurl BASEURL [--user USER] ([--space SPACE] --title TITLE | --pageid PAGEID) [--new-title NEW_TITLE] ([--file FILE] | --text TEXT)
+    confluence-poster --baseurl BASEURL [--user USER] ([--space SPACE] --new-title NEW_TITLE ([--file FILE] | --text TEXT)
+    confluence-poster (-h | --help)
 
     optional arguments:
       -h, --help            show this help message and exit

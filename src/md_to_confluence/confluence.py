@@ -11,7 +11,7 @@ from typing import BinaryIO, Dict, List, Optional, TextIO, Tuple, Union
 
 import requests
 
-from authenticate import authenticate
+from .authenticate import authenticate
 
 
 class Method(Enum):

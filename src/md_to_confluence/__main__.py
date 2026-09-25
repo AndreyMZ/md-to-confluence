@@ -15,7 +15,7 @@ from typing import List, Optional
 import requests
 import yaml
 
-from confluence import Confluence
+from .confluence import Confluence
 
 PROJECT_NAME = "md-to-confluence"
 PROJECT_URL = "https://github.com/AndreyMZ/md-to-confluence"

@@ -10,13 +10,14 @@ authors = ["Andrey Zelenchuk <andrey.zelenchuk@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 repository = "https://gitlab.com/AndreyMZ/md-to-confluence"
-packages = [{include = "md_to_confluence.py"}]
+packages = [{include = "md_to_confluence", from = "src"}]
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://gitlab.com/AndreyMZ/md-to-confluence/-/issues"
 
 [tool.poetry.scripts]
-"md-to-confluence" = "md_to_confluence:main"
+"md-to-confluence" = "md_to_confluence.__main__:main"
+"confluence-poster" = "md_to_confluence.confluence_poster:main"
 
 [tool.poetry.dependencies]
 python = "^3.11"

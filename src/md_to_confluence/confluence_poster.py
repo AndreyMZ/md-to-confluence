@@ -2,7 +2,7 @@ import argparse
 import os
 import sys
 
-from confluence import Confluence
+from .confluence import Confluence
 
 
 def main() -> None:
