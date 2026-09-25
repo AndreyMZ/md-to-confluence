@@ -1,12 +1,27 @@
 Requirements
 ============
 
-- [Python 3](https://www.python.org/downloads/)
-- Python packages (run `pip install -r requirements.txt` or, if you have several versions of python on Windows, `py -3 -m pip install -r requirements.txt`):
-    - [keyring](https://pypi.org/project/keyring/)
-    - [requests](https://requests.readthedocs.io/en/master/)
-    - [pyyaml](https://pyyaml.org/wiki/PyYAMLDocumentation)
-- [Pandoc](https://pandoc.org/installing.html) >= 2.1.3
+- [Python](https://www.python.org/downloads/) ≥ 3.11 
+- [Pandoc](https://pandoc.org/installing.html) ≥ 2.1.3
+
+
+Installation
+============
+
+1. Install [pipx](https://pypa.github.io/pipx/#install-pipx).
+2. Run:
+
+    ~~~sh    
+    pipx install git+https://github.com/AndreyMZ/md-to-confluence.git
+    ~~~
+
+
+Update/upgrade
+==============
+
+~~~sh    
+pipx upgrade md-to-confluence
+~~~
 
 
 Usage
