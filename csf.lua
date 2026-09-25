@@ -456,7 +456,8 @@ end
 function Header(lev, s, attr)
 	local id = attr['id']
 	attr['id'] = nil
-	return  Anchor(id) .. "\n<h" .. lev .. attributes(attr) ..  ">" .. s .. "</h" .. lev .. ">"
+	return -- Anchor(id) .. "\n" ..
+	       "<h" .. lev .. attributes(attr) ..  ">" .. s .. "</h" .. lev .. ">"
 end
 
 
